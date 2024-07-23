@@ -25,7 +25,7 @@ export const MyIcon = ({name, color, white = false}: Props) => {
 
 const styles = StyleSheet.create({
   icon: {
-    width: 30,
-    height: 30,
+    width: 32,
+    height: 32,
   },
 });

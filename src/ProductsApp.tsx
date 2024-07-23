@@ -9,11 +9,7 @@ import {StackNavigator} from './presentation/navigation/StackNavigator';
 import {useColorScheme} from 'react-native';
 import {AuthProvider} from './presentation/providers/AuthProvider';
 
-import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
-
-const queryClient = new QueryClient();
-
-export const CanchitaApp = () => {
+export const ProductsApp = () => {
   const colorScheme = useColorScheme();
   const theme = colorScheme === 'dark' ? eva.dark : eva.light;
   const backgroundColor =
@@ -22,7 +18,7 @@ export const CanchitaApp = () => {
       : theme['color-basic-100'];
 
   return (
-    <QueryClientProvider client={ queryClient }>
+    <>
       <IconRegistry icons={EvaIconsPack} />
       <ApplicationProvider {...eva} theme={theme}>
         <NavigationContainer
@@ -42,6 +38,6 @@ export const CanchitaApp = () => {
           </AuthProvider>
         </NavigationContainer>
       </ApplicationProvider>
-    </QueryClientProvider>
+    </>
   );
 };
