@@ -5,6 +5,6 @@
 import {AppRegistry} from 'react-native';
 
 import {name as appName} from './app.json';
-import { ProductsApp } from './src/ProductsApp';
+import { CanchitaApp } from './src/CanchitaApp';
 
-AppRegistry.registerComponent(appName, () => ProductsApp);
+AppRegistry.registerComponent(appName, () => CanchitaApp);
