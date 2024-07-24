@@ -9,7 +9,7 @@ import {StackNavigator} from './presentation/navigation/StackNavigator';
 import {useColorScheme} from 'react-native';
 import {AuthProvider} from './presentation/providers/AuthProvider';
 
-export const ProductsApp = () => {
+export const CanchitaApp = () => {
   const colorScheme = useColorScheme();
   const theme = colorScheme === 'dark' ? eva.dark : eva.light;
   const backgroundColor =
