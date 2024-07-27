@@ -1,20 +1,44 @@
 import React, { useState } from 'react';
 import { Button, Input, Layout, Text } from '@ui-kitten/components';
-import { KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
+import { Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { MyIcon } from '../../components/ui/MyIcon';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/StackNavigator';
+import { useAuthStore } from '../../store/auth/useAuthStore';
 import { styles } from './styles'; // Importa los estilos
 
 interface Props extends StackScreenProps<RootStackParams, 'RegisterScreen'> {}
 
 export const RegisterScreen = ({ navigation }: Props) => {
+  const { register } = useAuthStore();
+  const [isPosting, setIsPosting] = useState(false);
+  const [form, setForm] = useState({
+    fullName: '',
+    email: '',
+    password: '',
+  });
   const [isFocused, setIsFocused] = useState({
-    name: false,
+    fullName: false,
     email: false,
     password: false,
   });
+
+  const onRegister = async () => {
+    if (form.fullName.length === 0 || form.email.length === 0 || form.password.length === 0) {
+      Alert.alert('Error', 'Todos los campos son obligatorios');
+      return;
+    }
+    setIsPosting(true);
+    const wasSuccessful = await register(form.fullName, form.email, form.password);
+    setIsPosting(false);
+
+    if (wasSuccessful) {
+      navigation.navigate('LoginScreen');
+      return;
+    }
+
+    Alert.alert('Error', 'Error al crear la cuenta');
+  };
 
   return (
     <KeyboardAvoidingView
@@ -33,11 +57,13 @@ export const RegisterScreen = ({ navigation }: Props) => {
             <Input
               placeholder="Nombre completo"
               accessoryLeft={<MyIcon name="person-outline" />}
-              onFocus={() => setIsFocused({ ...isFocused, name: true })}
-              onBlur={() => setIsFocused({ ...isFocused, name: false })}
+              value={form.fullName}
+              onChangeText={(fullName) => setForm({ ...form, fullName })}
+              onFocus={() => setIsFocused({ ...isFocused, fullName: true })}
+              onBlur={() => setIsFocused({ ...isFocused, fullName: false })}
               style={[
                 styles.input,
-                isFocused.name && styles.inputFocused,
+                isFocused.fullName && styles.inputFocused,
               ]}
             />
             <Input
@@ -45,6 +71,8 @@ export const RegisterScreen = ({ navigation }: Props) => {
               keyboardType="email-address"
               autoCapitalize="none"
               accessoryLeft={<MyIcon name="email-outline" />}
+              value={form.email}
+              onChangeText={(email) => setForm({ ...form, email })}
               onFocus={() => setIsFocused({ ...isFocused, email: true })}
               onBlur={() => setIsFocused({ ...isFocused, email: false })}
               style={[
@@ -57,6 +85,8 @@ export const RegisterScreen = ({ navigation }: Props) => {
               autoCapitalize="none"
               secureTextEntry
               accessoryLeft={<MyIcon name="lock-outline" />}
+              value={form.password}
+              onChangeText={(password) => setForm({ ...form, password })}
               onFocus={() => setIsFocused({ ...isFocused, password: true })}
               onBlur={() => setIsFocused({ ...isFocused, password: false })}
               style={[
@@ -73,10 +103,18 @@ export const RegisterScreen = ({ navigation }: Props) => {
           <Layout>
             <Button
               style={styles.button}
+              disabled={isPosting}
               accessoryRight={<MyIcon name="arrow-forward-outline" white />}
-              onPress={() => {}}>
+              onPress={onRegister}
+            >
               Crear
             </Button>
+          </Layout>
+
+          {/* Mostrar datos del formulario */}
+          <Layout style={{ marginTop: 20 }}>
+            <Text>Datos del formulario:</Text>
+            <Text>{JSON.stringify(form, null, 2)}</Text>
           </Layout>
 
           {/* Información para crear cuenta */}
@@ -87,13 +125,15 @@ export const RegisterScreen = ({ navigation }: Props) => {
               alignItems: 'flex-end',
               flexDirection: 'row',
               justifyContent: 'center',
-            }}>
+            }}
+          >
             <Text>¿Ya tienes cuenta?</Text>
             <Text
               style={styles.textButton}
               status="primary"
               category="s1"
-              onPress={() => navigation.goBack()}>
+              onPress={() => navigation.goBack()}
+            >
               {' '}
               ingresar{' '}
             </Text>

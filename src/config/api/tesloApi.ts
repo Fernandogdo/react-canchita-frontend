@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Platform } from 'react-native';
 import { StorageAdapter } from '../adapters/storage-adapter';
 
-
+// Determina la URL base según la plataforma y el entorno
 export const API_URL = 
   (STAGE === 'prod')
    ? PROD_URL
@@ -11,32 +11,27 @@ export const API_URL =
       ? API_URL_IOS
       : API_URL_ANDROID;
 
-
+// Depuración: imprimir la URL de la API
+console.log('API_URL:', API_URL);
 
 const tesloApi = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   }
-})
+});
 
 // TODO: Interceptors
 tesloApi.interceptors.request.use(
   async (config) => {
-
     const token = await StorageAdapter.getItem('token');
-    if ( token )  {
+    if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
-
     return config;
   }
 );
 
-
-
-
 export {
   tesloApi,
-}
-
+};

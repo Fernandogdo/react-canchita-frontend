@@ -7,10 +7,12 @@ import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/StackNavigator';
 import { useAuthStore } from '../../store/auth/useAuthStore';
 import { styles } from './styles'; // Importa los estilos
+import { API_URL, STAGE } from '@env';
 
 interface Props extends StackScreenProps<RootStackParams, 'LoginScreen'> {}
 
 export const LoginScreen = ({ navigation }: Props) => {
+  
   const { login } = useAuthStore();
   const [isPosting, setIsPosting] = useState(false);
   const [form, setForm] = useState({
@@ -78,6 +80,7 @@ export const LoginScreen = ({ navigation }: Props) => {
               ]}
             />
           </Layout>
+
 
           {/* Space */}
           <Layout style={{ height: 10 }} />
