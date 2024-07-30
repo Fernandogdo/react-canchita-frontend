@@ -5,6 +5,7 @@ import {
 import {LoadingScreen} from '../screens/loading/LoadingScreen';
 import {LoginScreen} from '../screens/auth/LoginScreen';
 import {RegisterScreen} from '../screens/auth/RegisterScreen';
+import {RecoverScreen} from '../screens/auth/RecoverScreen';
 import {HomeScreen} from '../screens/home/HomeScreen';
 import {ProductScreen} from '../screens/product/ProductScreen';
 
@@ -14,6 +15,8 @@ export type RootStackParams = {
   RegisterScreen: undefined;
   HomeScreen: undefined;
   ProductScreen: {productId: string};
+  RecoverScreen: undefined;
+
 };
 
 const Stack = createStackNavigator<RootStackParams>();
@@ -55,6 +58,11 @@ export const StackNavigator = () => {
         component={HomeScreen}
       />
       <Stack.Screen name="ProductScreen" component={ProductScreen} />
+      <Stack.Screen
+        options={{cardStyleInterpolator: fadeAnimation}}
+        name="RecoverScreen"
+        component={RecoverScreen}
+      />
     </Stack.Navigator>
   );
 };

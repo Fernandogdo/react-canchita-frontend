@@ -9,9 +9,9 @@ import { useAuthStore } from '../../store/auth/useAuthStore';
 import { styles } from './styles'; // Importa los estilos
 import { API_URL, STAGE } from '@env';
 
-interface Props extends StackScreenProps<RootStackParams, 'LoginScreen'> {}
+interface Props extends StackScreenProps<RootStackParams, 'RecoverScreen'> {}
 
-export const LoginScreen = ({ navigation }: Props) => {
+export const RecoverScreen = ({ navigation }: Props) => {
   
   const { login } = useAuthStore();
   const [isPosting, setIsPosting] = useState(false);
@@ -46,12 +46,12 @@ export const LoginScreen = ({ navigation }: Props) => {
       <Layout style={styles.containerCentered}>
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
           <Layout style={[styles.fondoPincipal,{ paddingBottom: 20}]}>
-            <Text style={{ color:'white' }} category="h1">Inicio de sesión </Text>
-            <Text style={{ color:'white' }} category="p2">Inicia sesión mediante correo y contraseña</Text>
+            <Text style={{ color:'white' }} category="h1">Recuperar contraseña </Text>
+            <Text style={{ color:'white' }} category="p2">Ingresa tu correo electrónico para recuperar tu contraseña</Text>
           </Layout>
 
           {/* Inputs */}
-          <Layout style={[styles.fondoPincipal,{ marginTop: 20}]}>
+          <Layout style={[styles.fondoPincipal,{ marginTop: 5}]}>
             <Input
               placeholder="Correo electrónico"
               keyboardType="email-address"
@@ -64,21 +64,6 @@ export const LoginScreen = ({ navigation }: Props) => {
               style={[
                 styles.input,
                 isFocused.email && styles.inputFocused,
-              ]}
-              textStyle={{ color: styles.input.color }} // Cambia el color del texto interno
-            />
-            <Input
-              placeholder="Contraseña"
-              autoCapitalize="none"
-              secureTextEntry
-              value={form.password}
-              onChangeText={password => setForm({ ...form, password })}
-              onFocus={() => setIsFocused({ ...isFocused, password: true })}
-              onBlur={() => setIsFocused({ ...isFocused, password: false })}
-              accessoryLeft={<MyIcon name="lock-outline" white />}
-              style={[
-                styles.input,
-                isFocused.password && styles.inputFocused,
               ]}
               textStyle={{ color: styles.input.color }} // Cambia el color del texto interno
             />
@@ -103,7 +88,7 @@ export const LoginScreen = ({ navigation }: Props) => {
               category="s1"
               onPress={() => navigation.navigate('RecoverScreen')}>
               {' '}
-              Olvidaste tu contraseña?{' '}
+              No tengo acceso al correo{' '}
             </Text>
           </Layout>
              {/* Space */}
@@ -116,28 +101,22 @@ export const LoginScreen = ({ navigation }: Props) => {
               disabled={isPosting}
               accessoryRight={<MyIcon name="arrow-forward-outline" white />}
               onPress={onLogin}>
-              Iniciar sesión
+              Recuperar contraseña
             </Button>
-            
+              {/* Space */}
+              <Layout style={[styles.fondoPincipal, { height: 10,  }]} />
+
+            <Button
+              style={styles.button}
+              disabled={isPosting}
+              accessoryLeft={<MyIcon name="arrow-back-outline" white />}
+              onPress={() => navigation.goBack()}>
+              Regresar
+            </Button>
           </Layout>
           <Layout style={[styles.fondoPincipal, { height: 10,  }]} />
 
-          <Layout
-            style={[styles.fondoPincipal,{
-              alignItems: 'flex-end',
-              flexDirection: 'row',
-              justifyContent: 'center',
-            }]}>
-            <Text style={{color:'white'}}>¿No tienes cuenta?</Text>
-            <Text
-              style={styles.textButton}
-              status="primary"
-              category="s1"
-              onPress={() => navigation.navigate('RegisterScreen')}>
-              {' '}
-              crea una{' '}
-            </Text>
-          </Layout>
+         
         </ScrollView>
       </Layout>
     </KeyboardAvoidingView>
