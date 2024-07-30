@@ -120,14 +120,14 @@ export const RegisterScreen = ({ route, navigation }: Props) => {
     >
       <Layout style={styles.containerCentered}>
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
-          <Layout style={{ paddingBottom: 20 }}>
-            <Text category="h1">Crear cuenta</Text>
-            <Text category="p2">Por favor, crea una cuenta para continuar</Text>
-            {role && <Text category="s1">Rol seleccionado: {role}</Text>}
+          <Layout style={[styles.fondoPincipal, { paddingBottom: 20 }]}>
+            <Text style={{ color: 'white' }} category="h1">Crear cuenta</Text>
+            <Text style={{ color: 'white' }} category="p2">Por favor, crea una cuenta para continuar</Text>
+            {role && <Text style={{ color: 'white' }} category="s1">Rol seleccionado: {role}</Text>}
           </Layout>
 
           {/* Inputs */}
-          <Layout style={{ marginTop: 20 }}>
+          <Layout style={[styles.fondoPincipal, { marginTop: 20 }]}>
             <Input
               placeholder="Nombre"
               accessoryLeft={<MyIcon name="person-outline" />}
@@ -142,6 +142,7 @@ export const RegisterScreen = ({ route, navigation }: Props) => {
                 isFocused.fullName && styles.inputFocused,
                 errors.fullName ? styles.inputError : null,
               ]}
+              textStyle={{ color: styles.input.color }} // Cambia el color del texto interno
             />
             <Input
               placeholder="Apellido"
@@ -157,6 +158,7 @@ export const RegisterScreen = ({ route, navigation }: Props) => {
                 isFocused.lastName && styles.inputFocused,
                 errors.lastName ? styles.inputError : null,
               ]}
+              textStyle={{ color: styles.input.color }} // Cambia el color del texto interno
             />
             <Input
               placeholder="Correo electrónico"
@@ -174,6 +176,7 @@ export const RegisterScreen = ({ route, navigation }: Props) => {
                 isFocused.email && styles.inputFocused,
                 errors.email ? styles.inputError : null,
               ]}
+              textStyle={{ color: styles.input.color }} // Cambia el color del texto interno
             />
             <Select
               placeholder="Tipo de Identificación"
@@ -212,6 +215,7 @@ export const RegisterScreen = ({ route, navigation }: Props) => {
                 isFocused.idNumber && styles.inputFocused,
                 errors.idNumber ? styles.inputError : null,
               ]}
+              textStyle={{ color: styles.input.color }} // Cambia el color del texto interno
             />
             <Input
               placeholder="Contraseña"
@@ -229,14 +233,15 @@ export const RegisterScreen = ({ route, navigation }: Props) => {
                 isFocused.password && styles.inputFocused,
                 errors.password ? styles.inputError : null,
               ]}
+              textStyle={{ color: styles.input.color }} // Cambia el color del texto interno
             />
           </Layout>
 
           {/* Space */}
-          <Layout style={{ height: 10 }} />
+          <Layout style={[styles.fondoPincipal, { height: 10 }]} />
 
           {/* Button */}
-          <Layout>
+          <Layout style={styles.fondoPincipal}>
             <Button
               style={styles.button}
               disabled={isPosting}
@@ -248,21 +253,21 @@ export const RegisterScreen = ({ route, navigation }: Props) => {
           </Layout>
 
           {/* Información para crear cuenta */}
-          <Layout style={{ height: 50 }} />
+          <Layout style={[styles.fondoPincipal, { height: 50 }]} />
 
           <Layout
-            style={{
+            style={[styles.fondoPincipal, {
               alignItems: 'flex-end',
               flexDirection: 'row',
               justifyContent: 'center',
-            }}
+            }]}
           >
-            <Text>¿Ya tienes cuenta?</Text>
+            <Text style={{ color: 'white' }}>¿Ya tienes cuenta?</Text>
             <Text
               style={styles.textButton}
               status="primary"
               category="s1"
-              onPress={() => navigation.goBack()}
+              onPress={() => navigation.navigate('LoginScreen')}
             >
               {' '}
               ingresar{' '}

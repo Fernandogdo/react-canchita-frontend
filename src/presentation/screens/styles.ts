@@ -7,10 +7,15 @@ export const styles = StyleSheet.create({
     borderColor: '#000', // color inicial del borde
     paddingHorizontal: 10,
     paddingVertical: 5,
+    backgroundColor: 'black',
+    color: 'white',
   },
   inputFocused: {
     borderColor: '#fff', // color del borde cuando está enfocado
-    backgroundColor: '#615e5e'
+    backgroundColor: '#615e5e',
+  },
+  inputError: {
+    borderColor: 'red', // color del borde cuando hay un error
   },
   select: {
     borderRadius: 20,
@@ -19,10 +24,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 5,
   },
   selectFocused: {
-    backgroundColor: '#615e5e'
-  },
-  inputError: {
-    borderColor: 'red', // color del borde cuando hay un error
+    backgroundColor: '#615e5e',
   },
   containerCentered: {
     flex: 1,
@@ -32,13 +34,18 @@ export const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center', // centrado verticalmente
     paddingHorizontal: 40,
+    backgroundColor: '#4A4A4A',
   },
   button: {
     backgroundColor: '#5BA246',
-    borderColor: '#000',
+    borderColor: '#5BA246',
+    borderRadius: 20,
   },
   textButton: {
     color: '#5BA246',
+  },
+  fondoPincipal: {
+    backgroundColor: '#4A4A4A',
   },
   // Estilos de RoleScreen
   cardContainer: {
