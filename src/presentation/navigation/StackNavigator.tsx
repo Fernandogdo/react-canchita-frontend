@@ -9,6 +9,7 @@ import { RoleScreen } from '../screens/auth/RoleScreen';
 import { EstablishmentRegisterScreen } from '../screens/auth/EstablishmentRegisterScreen';
 import { DashboardScreen } from '../screens/home/DashboardScreen';
 import { EstablishmentDetailScreen } from '../screens/home/EstablishmentDetailScreen';
+import {RecoverScreen} from '../screens/auth/RecoverScreen';
 
 export type RootStackParams = {
   LoadingScreen: undefined;
@@ -20,6 +21,8 @@ export type RootStackParams = {
   HomeScreen: undefined;
   DashboardScreen: undefined;
   ProductScreen: { productId: string };
+  RecoverScreen: undefined;
+
 };
 
 const Stack = createStackNavigator<RootStackParams>();
@@ -82,6 +85,11 @@ export const StackNavigator = () => {
         options={{ headerShown: false }}
       />
       <Stack.Screen name="ProductScreen" component={ProductScreen} />
+      <Stack.Screen
+        options={{cardStyleInterpolator: fadeAnimation}}
+        name="RecoverScreen"
+        component={RecoverScreen}
+      />
     </Stack.Navigator>
   );
 };
