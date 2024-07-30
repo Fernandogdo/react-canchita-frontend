@@ -10,7 +10,7 @@ export interface AuthState {
   user?: User;
 
   login: (email: string, password: string) => Promise<boolean>;
-  register: (fullName: string, email: string, password: string) => Promise<boolean>;
+  register: (fullName: string, lastName: string, email: string, idType: string, idNumber: string, password: string) => Promise<boolean>;
   checkStatus: () => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -32,8 +32,8 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     return true;
   },
 
-  register: async (fullName: string, email: string, password: string) => {
-    const resp = await authRegister(fullName, email, password);
+  register: async (fullName: string, lastName: string, email: string, idType: string, idNumber: string, password: string) => {
+    const resp = await authRegister(fullName, lastName, email, idType, idNumber, password);
     if (!resp) {
       set({ status: 'unauthenticated', token: undefined, user: undefined });
       return false;
@@ -50,11 +50,18 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   },
 
   checkStatus: async () => {
+    const token = await StorageAdapter.getItem('token');
+    if (!token) {
+      set({ status: 'unauthenticated', token: undefined, user: undefined });
+      return;
+    }
+
     const resp = await authCheckStatus();
     if (!resp) {
       set({ status: 'unauthenticated', token: undefined, user: undefined });
       return;
     }
+
     await StorageAdapter.setItem('token', resp.token);
     set({ status: 'authenticated', token: resp.token, user: resp.user });
   },
