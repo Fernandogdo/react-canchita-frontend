@@ -28,9 +28,9 @@ export const RoleScreen = ({ navigation }: Props) => {
           </Layout>
 
           {/* Cards */}
-          <Layout style={styles.cardContainer}>
+          <Layout style={[styles.fondoPincipal, styles.cardContainer]}>
             <Card
-              style={[styles.card, { backgroundColor: '#5BA246' }]}
+              style={styles.card}
               onPress={() => onSelectRole('Establecimiento')}
             >
               <Layout style={styles.cardContent}>
@@ -40,7 +40,7 @@ export const RoleScreen = ({ navigation }: Props) => {
             </Card>
 
             <Card
-              style={[styles.card, { backgroundColor: '#5BA246' }]}
+              style={styles.card}
               onPress={() => onSelectRole('Cliente')}
             >
               <Layout style={styles.cardContent}>
