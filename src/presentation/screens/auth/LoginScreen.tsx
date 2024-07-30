@@ -6,7 +6,7 @@ import { MyIcon } from '../../components/ui/MyIcon';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/StackNavigator';
 import { useAuthStore } from '../../store/auth/useAuthStore';
-import { styles } from './styles'; // Importa los estilos
+import { styles } from '../styles'; // Importa los estilos
 import { API_URL, STAGE } from '@env';
 
 interface Props extends StackScreenProps<RootStackParams, 'LoginScreen'> {}
@@ -110,7 +110,7 @@ export const LoginScreen = ({ navigation }: Props) => {
               style={styles.textButton}
               status="primary"
               category="s1"
-              onPress={() => navigation.navigate('RegisterScreen')}>
+              onPress={() => navigation.navigate('RoleScreen')}>
               {' '}
               crea una{' '}
             </Text>
