@@ -8,7 +8,7 @@ import { MyIcon } from '../../components/ui/MyIcon';
 interface Props extends StackScreenProps<RootStackParams, 'RoleScreen'> {}
 
 export const RoleScreen = ({ navigation }: Props) => {
-  
+
   const onSelectRole = (role: 'Cliente' | 'Establecimiento') => {
     navigation.navigate('RegisterScreen', { role });
   };
@@ -16,22 +16,21 @@ export const RoleScreen = ({ navigation }: Props) => {
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
       <Layout style={styles.containerCentered}>
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
-          <Layout style={{ paddingBottom: 20 }}>
-            <Text category="h1">Escoge tu tipo de cuenta</Text>
-            <Text category="p2">
-              La cuenta Establecimiento es para personas dueñas de canchas
-              disponibles al público. La cuenta Cliente es para personas que
-              desean reservar.
+          <Layout style={[styles.fondoPincipal, { paddingBottom: 20 }]}>
+            <Text style={{ color: 'white' }} category="h1">Escoge tu tipo de cuenta</Text>
+            <Text style={{ color: 'white' }} category="p2">
+              La cuenta Establecimiento es para personas dueñas de canchas disponibles al público. La cuenta Cliente es para personas que desean reservar.
             </Text>
           </Layout>
 
           {/* Cards */}
           <Layout style={styles.cardContainer}>
             <Card
-              style={styles.card}
+              style={[styles.card, { backgroundColor: '#5BA246' }]}
               onPress={() => onSelectRole('Establecimiento')}
             >
               <Layout style={styles.cardContent}>
@@ -41,7 +40,7 @@ export const RoleScreen = ({ navigation }: Props) => {
             </Card>
 
             <Card
-              style={styles.card}
+              style={[styles.card, { backgroundColor: '#5BA246' }]}
               onPress={() => onSelectRole('Cliente')}
             >
               <Layout style={styles.cardContent}>
