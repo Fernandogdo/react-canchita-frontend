@@ -4,10 +4,10 @@ export const styles = StyleSheet.create({
   input: {
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#000', // color inicial del borde
+    borderColor: '#ffff', // color inicial del borde
     paddingHorizontal: 10,
     paddingVertical: 5,
-    backgroundColor: 'black',
+    backgroundColor: '#282626',
     color: 'white',
   },
   inputFocused: {
@@ -19,41 +19,50 @@ export const styles = StyleSheet.create({
   },
   select: {
     borderRadius: 20,
-    borderColor: '#000', // color inicial del borde
+    borderColor: '#fff', // color inicial del borde
     paddingHorizontal: 10,
     paddingVertical: 5,
   },
+
   selectFocused: {
     backgroundColor: '#615e5e',
   },
+
   containerCentered: {
     flex: 1,
     justifyContent: 'center', // centrado verticalmente
   },
+
   scrollViewContent: {
     flexGrow: 1,
     justifyContent: 'center', // centrado verticalmente
     paddingHorizontal: 40,
-    backgroundColor: '#4A4A4A',
+    backgroundColor: '#000000',
   },
+
   button: {
     backgroundColor: '#5BA246',
     borderColor: '#5BA246',
     borderRadius: 20,
   },
+
   textButton: {
     color: '#5BA246',
   },
+
   fondoPincipal: {
-    backgroundColor: '#4A4A4A',
+    backgroundColor: '#000000',
   },
-  // Estilos de RoleScreen
+
+
+  // Tarjetas RoleScreen
   cardContainer: {
     flexDirection: 'column', // Cambiado a columna para que las tarjetas estén una debajo de otra
     justifyContent: 'space-around',
     marginTop: 20,
-    height: '50%', // Ajusta esto según sea necesario para la separación vertical
+    height: '50%', // Ajustar esto para la separación vertical
   },
+
   card: {
     backgroundColor: '#5BA246',
     borderColor: '#5BA246',
@@ -61,11 +70,13 @@ export const styles = StyleSheet.create({
     width: '100%',
     marginBottom: 20, // Espaciado entre las tarjetas
   },
+
   cardContent: {
     alignItems: 'center',
     paddingVertical: 20,
     backgroundColor: '#5BA246', // Asegura que el fondo del contenido de la tarjeta también sea verde
   },
+
   cardText: {
     color: '#fff',
     fontSize: 16,

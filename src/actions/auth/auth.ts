@@ -22,21 +22,21 @@ const returnUserToken = (data: AuthResponse) => {
 export const authLogin = async (email: string, password: string) => {
   email = email.toLowerCase();
 
-  try {
-    const { data } = await tesloApi.post<AuthResponse>('/auth/login', {
-      email,
-      password,
-    });
+  // Simulación de una respuesta exitosa
+  const simulatedResponse = {
+    id: '12345',
+    email,
+    fullName: 'Simulated User',
+    isActive: true,
+    roles: ['user'],
+    token: 'fake-jwt-token'
+  };
 
-    console.log('Login exitoso:', data);
-    return returnUserToken(data);
-  } catch (error: any) {
-    if (axios.isAxiosError(error)) {
-      console.log('Error data:', error.response?.data);
-    }
-    console.log('Error message:', error.message);
-    return null;
-  }
+  // Simula una demora
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  console.log('Login exitoso:', simulatedResponse);
+  return returnUserToken(simulatedResponse);
 };
 
 export const authRegister = async (fullName: string, lastName: string, email: string, idType: string, idNumber: string, password: string) => {

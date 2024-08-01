@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { Button, Input, Layout, Text } from '@ui-kitten/components';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/StackNavigator';
-import { MyIcon } from '../../components/ui/MyIcon';
-import { styles } from '../styles'; // Importa los estilos
+import { styles } from '../styles';
+import Toast from 'react-native-toast-message';
 
 interface Props extends StackScreenProps<RootStackParams, 'EstablishmentRegisterScreen'> {}
 
@@ -12,24 +12,52 @@ export const EstablishmentRegisterScreen = ({ navigation }: Props) => {
   const [form, setForm] = useState({
     establishmentName: '',
     address: '',
-    phone: '',
-    email: '',
+    phoneNumber: '',
+    // Otros campos que necesites
   });
-  const [isFocused, setIsFocused] = useState({
-    establishmentName: false,
-    address: false,
-    phone: false,
-    email: false,
+  
+  const [errors, setErrors] = useState({
+    establishmentName: '',
+    address: '',
+    phoneNumber: '',
+    // Otros errores
   });
 
-  const onRegisterEstablishment = async () => {
-    if (form.establishmentName.length === 0 || form.address.length === 0 || form.phone.length === 0 || form.email.length === 0) {
-      Alert.alert('Error', 'Todos los campos son obligatorios');
+  const validateFields = () => {
+    let valid = true;
+    const newErrors = { establishmentName: '', address: '', phoneNumber: '' };
+
+    if (form.establishmentName.length === 0) {
+      newErrors.establishmentName = 'El nombre del establecimiento es obligatorio';
+      valid = false;
+    }
+
+    if (form.address.length === 0) {
+      newErrors.address = 'La dirección es obligatoria';
+      valid = false;
+    }
+
+    if (form.phoneNumber.length === 0) {
+      newErrors.phoneNumber = 'El número de teléfono es obligatorio';
+      valid = false;
+    }
+
+    setErrors(newErrors);
+    return valid;
+  };
+
+  const onRegisterEstablishment = () => {
+    if (!validateFields()) {
+      Toast.show({
+        type: 'error',
+        text1: 'Errores en el formulario',
+        text2: 'Por favor, revisa los campos resaltados'
+      });
       return;
     }
-    // Lógica para registrar el establecimiento
-    Alert.alert('Éxito', 'Establecimiento registrado con éxito');
-    navigation.navigate('LoginScreen');
+
+    // Si la validación es correcta, navegamos a la pantalla de Validación
+    navigation.navigate('ValidationScreen');
   };
 
   return (
@@ -39,71 +67,46 @@ export const EstablishmentRegisterScreen = ({ navigation }: Props) => {
     >
       <Layout style={styles.containerCentered}>
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
-          <Layout style={{ paddingBottom: 20 }}>
-            <Text category="h1">Registrar Establecimiento</Text>
-            <Text category="p2">Por favor, ingrese la información del establecimiento</Text>
+          <Layout style={[styles.fondoPincipal, { paddingBottom: 20 }]}>
+            <Text style={{ color: 'white' }} category="h1">Registrar Establecimiento</Text>
+            <Text style={{ color: 'white' }} category="p2">Por favor, completa los datos de tu establecimiento</Text>
           </Layout>
 
           {/* Inputs */}
-          <Layout style={{ marginTop: 20 }}>
+          <Layout style={[styles.fondoPincipal, { marginTop: 20 }]}>
             <Input
               placeholder="Nombre del Establecimiento"
-              accessoryLeft={<MyIcon name="home-outline" />}
               value={form.establishmentName}
               onChangeText={(establishmentName) => setForm({ ...form, establishmentName })}
-              onFocus={() => setIsFocused({ ...isFocused, establishmentName: true })}
-              onBlur={() => setIsFocused({ ...isFocused, establishmentName: false })}
-              style={[
-                styles.input,
-                isFocused.establishmentName && styles.inputFocused,
-              ]}
+              status={errors.establishmentName ? 'danger' : 'basic'}
+              caption={errors.establishmentName}
+              style={[styles.input, errors.establishmentName ? styles.inputError : null]}
+              textStyle={{ color: styles.input.color }}
             />
             <Input
               placeholder="Dirección"
-              accessoryLeft={<MyIcon name="email-outline" />}
               value={form.address}
               onChangeText={(address) => setForm({ ...form, address })}
-              onFocus={() => setIsFocused({ ...isFocused, address: true })}
-              onBlur={() => setIsFocused({ ...isFocused, address: false })}
-              style={[
-                styles.input,
-                isFocused.address && styles.inputFocused,
-              ]}
+              status={errors.address ? 'danger' : 'basic'}
+              caption={errors.address}
+              style={[styles.input, errors.address ? styles.inputError : null]}
+              textStyle={{ color: styles.input.color }}
             />
             <Input
-              placeholder="Teléfono"
+              placeholder="Número de Teléfono"
               keyboardType="phone-pad"
-              accessoryLeft={<MyIcon name="phone-outline" />}
-              value={form.phone}
-              onChangeText={(phone) => setForm({ ...form, phone })}
-              onFocus={() => setIsFocused({ ...isFocused, phone: true })}
-              onBlur={() => setIsFocused({ ...isFocused, phone: false })}
-              style={[
-                styles.input,
-                isFocused.phone && styles.inputFocused,
-              ]}
+              value={form.phoneNumber}
+              onChangeText={(phoneNumber) => setForm({ ...form, phoneNumber })}
+              status={errors.phoneNumber ? 'danger' : 'basic'}
+              caption={errors.phoneNumber}
+              style={[styles.input, errors.phoneNumber ? styles.inputError : null]}
+              textStyle={{ color: styles.input.color }}
             />
-            <Input
-              placeholder="Correo electrónico"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              accessoryLeft={<MyIcon name="email-outline" />}
-              value={form.email}
-              onChangeText={(email) => setForm({ ...form, email })}
-              onFocus={() => setIsFocused({ ...isFocused, email: true })}
-              onBlur={() => setIsFocused({ ...isFocused, email: false })}
-              style={[
-                styles.input,
-                isFocused.email && styles.inputFocused,
-              ]}
-            />
+            {/* Otros inputs si es necesario */}
           </Layout>
 
-          {/* Space */}
-          <Layout style={{ height: 10 }} />
-
-          {/* Button */}
-          <Layout>
+          {/* Botón Registrar Establecimiento */}
+          <Layout style={styles.fondoPincipal}>
             <Button
               style={styles.button}
               onPress={onRegisterEstablishment}
@@ -113,6 +116,9 @@ export const EstablishmentRegisterScreen = ({ navigation }: Props) => {
           </Layout>
         </ScrollView>
       </Layout>
+      <Toast />
     </KeyboardAvoidingView>
   );
 };
+
+export default EstablishmentRegisterScreen;

@@ -101,7 +101,7 @@ export const RegisterScreen = ({ route, navigation }: Props) => {
       if (role === 'Establecimiento') {
         navigation.navigate('EstablishmentRegisterScreen');
       } else {
-        navigation.navigate('LoginScreen');
+        navigation.navigate('ValidationScreen');
       }
       return;
     }
@@ -193,7 +193,6 @@ export const RegisterScreen = ({ route, navigation }: Props) => {
               onBlur={() => setIsFocused({ ...isFocused, idType: false })}
               style={[
                 styles.select,
-                isFocused.idType && styles.selectFocused,
                 errors.idType ? styles.inputError : null,
               ]}
             >
