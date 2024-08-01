@@ -1,18 +1,26 @@
-import React, { useState } from 'react';
-import { Button, Input, Layout, Text } from '@ui-kitten/components';
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Image, View } from 'react-native';
-import { StackScreenProps } from '@react-navigation/stack';
-import { RootStackParams } from '../../navigation/StackNavigator';
-import { useAuthStore } from '../../store/auth/useAuthStore';
-import { styles } from '../styles'; // Importa los estilos
-import { API_URL, STAGE } from '@env';
-import { MyIcon } from '../../components/ui/MyIcon';
+import React, {useState} from 'react';
+import {Button, Input, Layout, Text} from '@ui-kitten/components';
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Image,
+  View,
+} from 'react-native';
+import {StackScreenProps} from '@react-navigation/stack';
+import {RootStackParams} from '../../navigation/StackNavigator';
+import {useAuthStore} from '../../store/auth/useAuthStore';
+import {styles} from '../styles'; // Importa los estilos
+import {API_URL, STAGE} from '@env';
+import {MyIcon} from '../../components/ui/MyIcon';
+import FastImage from 'react-native-fast-image';
 
 interface Props extends StackScreenProps<RootStackParams, 'LoginScreen'> {}
 
-export const LoginScreen = ({ navigation }: Props) => {
-  
-  const { login } = useAuthStore();
+export const LoginScreen = ({navigation}: Props) => {
+  const {login} = useAuthStore();
   const [isPosting, setIsPosting] = useState(false);
   const [form, setForm] = useState({
     email: '',
@@ -39,63 +47,67 @@ export const LoginScreen = ({ navigation }: Props) => {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
+      style={{flex: 1}}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <Layout style={styles.containerCentered}>
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
           <View style={localStyles.logoContainer}>
+            {/* <FastImage
+              source={require('../../../assets/canchita-animation.gif')}
+              style={localStyles.gif}
+              resizeMode={FastImage.resizeMode.contain}
+            /> */}
             <Image
-              source={require('../../../assets/canchita-logo.png')}
-              style={localStyles.logo}
+              source={require('../../../assets/canchita-logo.png')} // Cambia el nombre del archivo aquí
+              style={localStyles.gif} // Puedes cambiar el estilo si es necesario
+              resizeMode="contain"
             />
           </View>
           <Layout style={[styles.fondoPincipal]}>
-            <Text style={localStyles.headerText} category="h1">Iniciar Sesión</Text>
+            <Text style={localStyles.headerText} category="h1">
+              Iniciar Sesión
+            </Text>
           </Layout>
 
           {/* Inputs */}
-          <Layout style={[styles.fondoPincipal, { marginTop: 20 }]}>
+          <Layout style={[styles.fondoPincipal, {marginTop: 20}]}>
             <Input
               placeholder="Correo electrónico"
               keyboardType="email-address"
               autoCapitalize="none"
               value={form.email}
-              onChangeText={email => setForm({ ...form, email })}
-              onFocus={() => setIsFocused({ ...isFocused, email: true })}
-              onBlur={() => setIsFocused({ ...isFocused, email: false })}
+              onChangeText={email => setForm({...form, email})}
+              onFocus={() => setIsFocused({...isFocused, email: true})}
+              onBlur={() => setIsFocused({...isFocused, email: false})}
               accessoryLeft={<MyIcon name="email-outline" white />}
-              style={[
-                styles.input,
-                isFocused.email && styles.inputFocused,
-              ]}
-              textStyle={{ color: styles.input.color }} // Cambia el color del texto interno
+              style={[styles.input, isFocused.email && styles.inputFocused]}
+              textStyle={{color: styles.input.color}} // Cambia el color del texto interno
             />
             <Input
               placeholder="Contraseña"
               autoCapitalize="none"
               secureTextEntry
               value={form.password}
-              onChangeText={password => setForm({ ...form, password })}
-              onFocus={() => setIsFocused({ ...isFocused, password: true })}
-              onBlur={() => setIsFocused({ ...isFocused, password: false })}
+              onChangeText={password => setForm({...form, password})}
+              onFocus={() => setIsFocused({...isFocused, password: true})}
+              onBlur={() => setIsFocused({...isFocused, password: false})}
               accessoryLeft={<MyIcon name="lock-outline" white />}
-              style={[
-                styles.input,
-                isFocused.password && styles.inputFocused,
-              ]}
-              textStyle={{ color: styles.input.color }} // Cambia el color del texto interno
+              style={[styles.input, isFocused.password && styles.inputFocused]}
+              textStyle={{color: styles.input.color}} // Cambia el color del texto interno
             />
           </Layout>
 
           <Layout
-            style={[styles.fondoPincipal, {
-              alignItems: 'flex-end', // Cambiado a 'center' para centrar el texto
-              flexDirection: 'row',
-              justifyContent: 'center',
-              marginTop: 5,
-              marginBottom: 5
-            }]}>
+            style={[
+              styles.fondoPincipal,
+              {
+                alignItems: 'flex-end', // Cambiado a 'center' para centrar el texto
+                flexDirection: 'row',
+                justifyContent: 'center',
+                marginTop: 5,
+                marginBottom: 5,
+              },
+            ]}>
             <Text
               style={styles.textButton}
               status="primary"
@@ -107,7 +119,7 @@ export const LoginScreen = ({ navigation }: Props) => {
           </Layout>
 
           {/* Space */}
-          <Layout style={[styles.fondoPincipal, { height: 10 }]} />
+          <Layout style={[styles.fondoPincipal, {height: 10}]} />
 
           {/* Button */}
           <Layout style={[styles.fondoPincipal]}>
@@ -119,22 +131,25 @@ export const LoginScreen = ({ navigation }: Props) => {
               Iniciar sesión
             </Button>
           </Layout>
-          <Layout style={[styles.fondoPincipal, { height: 10 }]} />
+          <Layout style={[styles.fondoPincipal, {height: 10}]} />
 
           <Layout
-            style={[styles.fondoPincipal, {
-              alignItems: 'flex-end',
-              flexDirection: 'row',
-              justifyContent: 'center',
-            }]}>
-            <Text style={{ color: 'white' }}>¿No tienes cuenta?</Text>
+            style={[
+              styles.fondoPincipal,
+              {
+                alignItems: 'flex-end',
+                flexDirection: 'row',
+                justifyContent: 'center',
+              },
+            ]}>
+            <Text style={{color: 'white'}}>¿No tienes cuenta?</Text>
             <Text
               style={styles.textButton}
               status="primary"
               category="s1"
               onPress={() => navigation.navigate('RoleScreen')}>
               {' '}
-              crea una{' '}
+              Registrate{' '}
             </Text>
           </Layout>
         </ScrollView>
@@ -148,7 +163,7 @@ const localStyles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
   },
-  logo: {
+  gif: {
     width: 150,
     height: 150,
     resizeMode: 'contain',
@@ -156,5 +171,5 @@ const localStyles = StyleSheet.create({
   headerText: {
     color: 'white',
     textAlign: 'center',
-  }
+  },
 });

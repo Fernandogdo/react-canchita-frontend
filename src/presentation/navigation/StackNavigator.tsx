@@ -10,6 +10,7 @@ import { EstablishmentRegisterScreen } from '../screens/auth/EstablishmentRegist
 import { DashboardScreen } from '../screens/home/DashboardScreen';
 import { EstablishmentDetailScreen } from '../screens/home/EstablishmentDetailScreen';
 import {RecoverScreen} from '../screens/auth/RecoverScreen';
+import { ValidationScreen } from '../screens/auth/ValidationScreen';
 
 export type RootStackParams = {
   LoadingScreen: undefined;
@@ -22,6 +23,7 @@ export type RootStackParams = {
   DashboardScreen: undefined;
   ProductScreen: { productId: string };
   RecoverScreen: undefined;
+  ValidationScreen: undefined;
 
 };
 
@@ -82,6 +84,11 @@ export const StackNavigator = () => {
        <Stack.Screen
         name="EstablishmentDetailScreen"
         component={EstablishmentDetailScreen}
+        options={{ headerShown: false }}
+      />
+        <Stack.Screen
+        name="ValidationScreen"
+        component={ValidationScreen}
         options={{ headerShown: false }}
       />
       <Stack.Screen name="ProductScreen" component={ProductScreen} />
