@@ -13,9 +13,10 @@ import {StackScreenProps} from '@react-navigation/stack';
 import {RootStackParams} from '../../navigation/StackNavigator';
 import {useAuthStore} from '../../store/auth/useAuthStore';
 import {styles} from '../styles'; // Importa los estilos
-import {API_URL, STAGE} from '@env';
 import {MyIcon} from '../../components/ui/MyIcon';
-import FastImage from 'react-native-fast-image';
+import Toast from 'react-native-toast-message';
+
+// import FastImage from 'react-native-fast-image';
 
 interface Props extends StackScreenProps<RootStackParams, 'LoginScreen'> {}
 
@@ -42,7 +43,11 @@ export const LoginScreen = ({navigation}: Props) => {
 
     if (wasSuccessful) return;
 
-    Alert.alert('Error', 'Usuario o contraseña incorrectos');
+    Toast.show({
+      type: 'error',
+      text1: 'Error',
+      text2: 'Usuario o contraseña incorrectos',
+    });
   };
 
   return (
@@ -57,11 +62,11 @@ export const LoginScreen = ({navigation}: Props) => {
               style={localStyles.gif}
               resizeMode={FastImage.resizeMode.contain}
             /> */}
-            <Image
-              source={require('../../../assets/canchita-logo.png')} // Cambia el nombre del archivo aquí
-              style={localStyles.gif} // Puedes cambiar el estilo si es necesario
-              resizeMode="contain"
-            />
+              <Image
+                source={require('../../../assets/canchita-logo.png')} // Cambia el nombre del archivo aquí
+                style={localStyles.gif} // Puedes cambiar el estilo si es necesario
+                resizeMode="contain"
+              />
           </View>
           <Layout style={[styles.fondoPincipal]}>
             <Text style={localStyles.headerText} category="h1">
