@@ -9,7 +9,9 @@ interface Props extends StackScreenProps<RootStackParams, 'RoleScreen'> {}
 
 export const RoleScreen = ({ navigation }: Props) => {
 
-  const onSelectRole = (role: 'Cliente' | 'Establecimiento') => {
+  const onSelectRole = (roleLabel: 'Cliente' | 'Establecimiento') => {
+    // Mapea los valores de la interfaz de usuario a los valores que necesitas enviar
+    const role = roleLabel === 'Establecimiento' ? 'E' : 'C';
     navigation.navigate('RegisterScreen', { role });
   };
 

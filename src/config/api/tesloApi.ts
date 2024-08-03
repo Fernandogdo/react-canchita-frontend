@@ -12,7 +12,7 @@ export const API_URL =
       : API_URL_ANDROID;
 
 // Depuración: imprimir la URL de la API
-console.log('API_URL:', API_URL);
+console.log('API_URL__:', API_URL);
 
 const tesloApi = axios.create({
   baseURL: API_URL,

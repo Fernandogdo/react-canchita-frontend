@@ -16,7 +16,7 @@ export type RootStackParams = {
   LoadingScreen: undefined;
   LoginScreen: undefined;
   RoleScreen: undefined;
-  RegisterScreen: { role: 'Cliente' | 'Establecimiento' };
+  RegisterScreen: { role: 'E' | 'C' };  // Cambia aquí a 'E' | 'C'
   EstablishmentRegisterScreen: undefined;
   EstablishmentDetailScreen: { establishmentId: string }; // Asegúrate de que este tipo esté definido correctamente
   HomeScreen: undefined;

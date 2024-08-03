@@ -10,7 +10,7 @@ export interface AuthState {
   user?: User;
 
   login: (email: string, password: string) => Promise<boolean>;
-  register: (fullName: string, lastName: string, email: string, idType: string, idNumber: string, password: string) => Promise<boolean>;
+  register: (firstName: string, lastName: string, email: string, idType: string, idNumber: string, password: string, role: 'E' | 'C') => Promise<boolean>;
   checkStatus: () => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -22,7 +22,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
 
   login: async (email: string, password: string) => {
     const resp = await authLogin(email, password);
-    if (!resp) {
+    if (!resp || !resp.token) {
       set({ status: 'unauthenticated', token: undefined, user: undefined });
       return false;
     }
@@ -32,14 +32,20 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     return true;
   },
 
-  register: async (fullName: string, lastName: string, email: string, idType: string, idNumber: string, password: string) => {
-    const resp = await authRegister(fullName, lastName, email, idType, idNumber, password);
+  register: async (firstName: string, lastName: string, email: string, idType: string, idNumber: string, password: string, role: 'E' | 'C') => {
+    const resp = await authRegister(firstName, lastName, email, idType, idNumber, password, role);
     if (!resp) {
       set({ status: 'unauthenticated', token: undefined, user: undefined });
       return false;
     }
-    await StorageAdapter.setItem('token', resp.token);
-    set({ status: 'authenticated', token: resp.token, user: resp.user });
+    
+    // Verifica si hay un token, si no, maneja la navegación sin token
+    if (resp.token) {
+      await StorageAdapter.setItem('token', resp.token);
+      set({ status: 'authenticated', token: resp.token, user: resp.user });
+    } else {
+      set({ status: 'unauthenticated', token: undefined, user: resp.user });
+    }
 
     return true;
   },
@@ -66,3 +72,4 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     set({ status: 'authenticated', token: resp.token, user: resp.user });
   },
 }));
+

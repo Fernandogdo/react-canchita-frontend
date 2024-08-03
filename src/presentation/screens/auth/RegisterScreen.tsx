@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { Button, Input, Layout, Text, Select, SelectItem, IndexPath } from '@ui-kitten/components';
 import { MyIcon } from '../../components/ui/MyIcon';
 import { StackScreenProps } from '@react-navigation/stack';
@@ -22,19 +22,25 @@ const validatePassword = (password: string) => {
 export const RegisterScreen = ({ route, navigation }: Props) => {
   const { role } = route.params;
   const { register } = useAuthStore();
-  const idTypes = ['Cédula', 'Pasaporte', 'Licencia de conducir'];
+
+  // Mapea los valores mostrados al usuario con los valores enviados al servidor
+  const idTypeOptions = [
+    { label: 'Cédula', value: 'CED' },
+    { label: 'RUC', value: 'RUC' },
+    { label: 'Pasaporte', value: 'PAS' },
+  ];
 
   const [isPosting, setIsPosting] = useState(false);
   const [form, setForm] = useState({
-    fullName: '',
+    firstName: '',
     lastName: '',
     email: '',
-    idType: idTypes[0],
+    idType: idTypeOptions[0].value, // Valor inicial (CED)
     idNumber: '',
     password: '',
   });
   const [errors, setErrors] = useState({
-    fullName: '',
+    firstName: '',
     lastName: '',
     email: '',
     idType: '',
@@ -43,7 +49,7 @@ export const RegisterScreen = ({ route, navigation }: Props) => {
   });
 
   const [isFocused, setIsFocused] = useState({
-    fullName: false,
+    firstName: false,
     lastName: false,
     email: false,
     idType: false,
@@ -55,35 +61,36 @@ export const RegisterScreen = ({ route, navigation }: Props) => {
 
   const onRegister = async () => {
     let valid = true;
-    const newErrors = { fullName: '', lastName: '', email: '', idType: '', idNumber: '', password: '' };
-
-    if (form.fullName.length === 0) {
-      newErrors.fullName = 'El nombre es obligatorio';
+    const newErrors = { firstName: '', lastName: '', email: '', idType: '', idNumber: '', password: '' };
+  
+    // Validaciones
+    if (form.firstName.length === 0) {
+      newErrors.firstName = 'El nombre es obligatorio';
       valid = false;
     }
-
+  
     if (form.lastName.length === 0) {
       newErrors.lastName = 'El apellido es obligatorio';
       valid = false;
     }
-
+  
     if (!validateEmail(form.email)) {
       newErrors.email = 'El correo electrónico no es válido';
       valid = false;
     }
-
+  
     if (form.idNumber.length === 0) {
       newErrors.idNumber = 'La identificación es obligatoria';
       valid = false;
     }
-
+  
     if (!validatePassword(form.password)) {
       newErrors.password = 'La contraseña debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas y números';
       valid = false;
     }
-
+  
     setErrors(newErrors);
-
+  
     if (!valid) {
       Toast.show({
         type: 'error',
@@ -92,26 +99,30 @@ export const RegisterScreen = ({ route, navigation }: Props) => {
       });
       return;
     }
-
+  
     setIsPosting(true);
-    const wasSuccessful = await register(form.fullName, form.lastName, form.email, form.idType, form.idNumber, form.password);
+    
+    // Aquí se llama a la función register, pasando los datos del formulario y el rol
+    const wasSuccessful = await register(form.firstName, form.lastName, form.email, form.idType, form.idNumber, form.password, role);
+    
     setIsPosting(false);
-
+  
     if (wasSuccessful) {
-      if (role === 'Establecimiento') {
+      if (role === 'E') {
         navigation.navigate('EstablishmentRegisterScreen');
       } else {
         navigation.navigate('ValidationScreen');
       }
       return;
     }
-
+  
     Toast.show({
       type: 'error',
       text1: 'Error',
       text2: 'Error al crear la cuenta',
     });
   };
+  
 
   return (
     <KeyboardAvoidingView
@@ -131,16 +142,16 @@ export const RegisterScreen = ({ route, navigation }: Props) => {
             <Input
               placeholder="Nombre"
               accessoryLeft={<MyIcon name="person-outline" />}
-              value={form.fullName}
-              onChangeText={(fullName) => setForm({ ...form, fullName })}
-              status={errors.fullName ? 'danger' : 'basic'}
-              caption={errors.fullName}
-              onFocus={() => setIsFocused({ ...isFocused, fullName: true })}
-              onBlur={() => setIsFocused({ ...isFocused, fullName: false })}
+              value={form.firstName}
+              onChangeText={(firstName) => setForm({ ...form, firstName })}
+              status={errors.firstName ? 'danger' : 'basic'}
+              caption={errors.firstName}
+              onFocus={() => setIsFocused({ ...isFocused, firstName: true })}
+              onBlur={() => setIsFocused({ ...isFocused, firstName: false })}
               style={[
                 styles.input,
-                isFocused.fullName && styles.inputFocused,
-                errors.fullName ? styles.inputError : null,
+                isFocused.firstName && styles.inputFocused,
+                errors.firstName ? styles.inputError : null,
               ]}
               textStyle={{ color: styles.input.color }} // Cambia el color del texto interno
             />
@@ -181,10 +192,10 @@ export const RegisterScreen = ({ route, navigation }: Props) => {
             <Select
               placeholder="Tipo de Identificación"
               selectedIndex={selectedIdTypeIndex}
-              value={idTypes[selectedIdTypeIndex.row]}
+              value={idTypeOptions[selectedIdTypeIndex.row].label}
               onSelect={(index) => {
                 setSelectedIdTypeIndex(index as IndexPath);
-                setForm({ ...form, idType: idTypes[(index as IndexPath).row] });
+                setForm({ ...form, idType: idTypeOptions[(index as IndexPath).row].value });
               }}
               accessoryLeft={<MyIcon name="credit-card-outline" />}
               status={errors.idType ? 'danger' : 'basic'}
@@ -196,8 +207,8 @@ export const RegisterScreen = ({ route, navigation }: Props) => {
                 errors.idType ? styles.inputError : null,
               ]}
             >
-              {idTypes.map((idType) => (
-                <SelectItem key={idType} title={idType} />
+              {idTypeOptions.map((option, index) => (
+                <SelectItem key={index} title={option.label} />
               ))}
             </Select>
             <Input

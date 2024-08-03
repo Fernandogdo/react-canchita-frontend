@@ -72,12 +72,13 @@ const localStyles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#1C1C1E', // Color de fondo
+    backgroundColor: '#1C1C1E',
   },
   scrollViewContent: {
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 20, // Añadir un padding para evitar que el contenido se acerque demasiado a los bordes de la pantalla
   },
   headerText: {
     fontSize: 24,
@@ -93,25 +94,32 @@ const localStyles = StyleSheet.create({
   pinContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '80%',
+    width: '100%', // Hacer que el contenedor use todo el ancho disponible
+    maxWidth: 400, // Limitar el ancho máximo en pantallas más grandes
+    paddingHorizontal: 20, // Añadir padding horizontal
     marginBottom: 30,
   },
   pinInput: {
-    width: 50,
-    height: 50,
-    borderRadius: 10,
-    borderWidth: 1,
+    flex: 1, // Distribuir equitativamente el espacio entre las casillas
+    height: 60,
+    borderRadius: 15,
+    borderWidth: 2,
     borderColor: '#E5E5EA',
     textAlign: 'center',
     fontSize: 24,
     color: '#FFFFFF',
     backgroundColor: '#2C2C2E',
-  },
-  continueButton: {
-    backgroundColor: '#FF3B30',
-    borderRadius: 25,
-    width: '80%',
+    marginHorizontal: 4, // Margen entre casillas
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
 });
+
 
 export default ValidationScreen;
