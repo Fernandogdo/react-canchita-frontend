@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { tesloApi } from '../../config/api/tesloApi';
 import { User } from '../../domain/entities/user';
-import type { AuthResponse } from '../../infrastructure/interfaces/auth.responses';
+import { AuthResponse } from '../../infrastructure/interfaces/auth.responses';
 
 const returnUserToken = (data: any) => {
   const user: User = {
@@ -18,9 +18,6 @@ const returnUserToken = (data: any) => {
     token: data.token || null, // Devuelve null si no hay token
   };
 };
-
-
-
 
 export const authLogin = async (email: string, password: string) => {
   email = email.toLowerCase();
@@ -66,10 +63,6 @@ export const authRegister = async (firstName: string, lastName: string, email: s
     return null;
   }
 };
-
-
-
-
 
 export const authCheckStatus = async () => {
   try {

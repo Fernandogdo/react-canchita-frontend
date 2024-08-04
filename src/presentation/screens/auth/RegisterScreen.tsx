@@ -10,13 +10,14 @@ import Toast from 'react-native-toast-message';
 
 interface Props extends StackScreenProps<RootStackParams, 'RegisterScreen'> {}
 
+
 const validateEmail = (email: string) => {
   const re = /\S+@\S+\.\S+/;
   return re.test(email);
 };
 
 const validatePassword = (password: string) => {
-  return /[A-Z]/.test(password) && /[a-z]/.test(password) && /[0-9]/.test(password) && password.length >= 8;
+  return /[A-Z]/.test(password) && /[a-z]/.test(password) && password.length >= 8;
 };
 
 export const RegisterScreen = ({ route, navigation }: Props) => {
@@ -102,28 +103,41 @@ export const RegisterScreen = ({ route, navigation }: Props) => {
   
     setIsPosting(true);
     
-    // Aquí se llama a la función register, pasando los datos del formulario y el rol
-    const wasSuccessful = await register(form.firstName, form.lastName, form.email, form.idType, form.idNumber, form.password, role);
-    
-    setIsPosting(false);
-  
-    if (wasSuccessful) {
-      if (role === 'E') {
-        navigation.navigate('EstablishmentRegisterScreen');
+    try {
+      // Aquí se llama a la función register y se obtiene la respuesta con el id del usuario
+      const response = await register(
+        form.firstName,
+        form.lastName,
+        form.email,
+        form.idType,
+        form.idNumber,
+        form.password,
+        role
+      );
+
+      if (response && response.user) {
+        const userId = response.user.id;
+        const email = response.user.email;
+      
+        if (role === 'E') {
+          navigation.navigate('EstablishmentRegisterScreen', { userId, email });
+        } else {
+          navigation.navigate('ValidationScreen', { email });
+        }
       } else {
-        navigation.navigate('ValidationScreen');
+        throw new Error('Error al obtener el ID de usuario');
       }
-      return;
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Error al crear la cuenta',
+      });
+    } finally {
+      setIsPosting(false);
     }
-  
-    Toast.show({
-      type: 'error',
-      text1: 'Error',
-      text2: 'Error al crear la cuenta',
-    });
   };
   
-
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -131,14 +145,14 @@ export const RegisterScreen = ({ route, navigation }: Props) => {
     >
       <Layout style={styles.containerCentered}>
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
-          <Layout style={[styles.fondoPincipal, { paddingBottom: 20 }]}>
+          <Layout style={[styles.fondoPrincipal, { paddingBottom: 20 }]}>
             <Text style={{ color: 'white' }} category="h1">Crear cuenta</Text>
             <Text style={{ color: 'white' }} category="p2">Por favor, crea una cuenta para continuar</Text>
             {role && <Text style={{ color: 'white' }} category="s1">Rol seleccionado: {role}</Text>}
           </Layout>
 
           {/* Inputs */}
-          <Layout style={[styles.fondoPincipal, { marginTop: 20 }]}>
+          <Layout style={[styles.fondoPrincipal, { marginTop: 20 }]}>
             <Input
               placeholder="Nombre"
               accessoryLeft={<MyIcon name="person-outline" />}
@@ -248,10 +262,10 @@ export const RegisterScreen = ({ route, navigation }: Props) => {
           </Layout>
 
           {/* Space */}
-          <Layout style={[styles.fondoPincipal, { height: 10 }]} />
+          <Layout style={[styles.fondoPrincipal, { height: 10 }]} />
 
           {/* Button */}
-          <Layout style={styles.fondoPincipal}>
+          <Layout style={styles.fondoPrincipal}>
             <Button
               style={styles.button}
               disabled={isPosting}
@@ -263,10 +277,10 @@ export const RegisterScreen = ({ route, navigation }: Props) => {
           </Layout>
 
           {/* Información para crear cuenta */}
-          <Layout style={[styles.fondoPincipal, { height: 50 }]} />
+          <Layout style={[styles.fondoPrincipal, { height: 50 }]} />
 
           <Layout
-            style={[styles.fondoPincipal, {
+            style={[styles.fondoPrincipal, {
               alignItems: 'flex-end',
               flexDirection: 'row',
               justifyContent: 'center',

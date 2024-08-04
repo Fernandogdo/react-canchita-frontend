@@ -68,14 +68,14 @@ export const LoginScreen = ({navigation}: Props) => {
                 resizeMode="contain"
               />
           </View>
-          <Layout style={[styles.fondoPincipal]}>
+          <Layout style={[styles.fondoPrincipal]}>
             <Text style={localStyles.headerText} category="h1">
               Iniciar Sesión
             </Text>
           </Layout>
 
           {/* Inputs */}
-          <Layout style={[styles.fondoPincipal, {marginTop: 20}]}>
+          <Layout style={[styles.fondoPrincipal, {marginTop: 20}]}>
             <Input
               placeholder="Correo electrónico"
               keyboardType="email-address"
@@ -104,7 +104,7 @@ export const LoginScreen = ({navigation}: Props) => {
 
           <Layout
             style={[
-              styles.fondoPincipal,
+              styles.fondoPrincipal,
               {
                 alignItems: 'flex-end', // Cambiado a 'center' para centrar el texto
                 flexDirection: 'row',
@@ -124,10 +124,10 @@ export const LoginScreen = ({navigation}: Props) => {
           </Layout>
 
           {/* Space */}
-          <Layout style={[styles.fondoPincipal, {height: 10}]} />
+          <Layout style={[styles.fondoPrincipal, {height: 10}]} />
 
           {/* Button */}
-          <Layout style={[styles.fondoPincipal]}>
+          <Layout style={[styles.fondoPrincipal]}>
             <Button
               style={styles.button}
               disabled={isPosting}
@@ -136,11 +136,11 @@ export const LoginScreen = ({navigation}: Props) => {
               Iniciar sesión
             </Button>
           </Layout>
-          <Layout style={[styles.fondoPincipal, {height: 10}]} />
+          <Layout style={[styles.fondoPrincipal, {height: 10}]} />
 
           <Layout
             style={[
-              styles.fondoPincipal,
+              styles.fondoPrincipal,
               {
                 alignItems: 'flex-end',
                 flexDirection: 'row',

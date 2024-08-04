@@ -22,7 +22,7 @@ export const RoleScreen = ({ navigation }: Props) => {
     >
       <Layout style={styles.containerCentered}>
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
-          <Layout style={[styles.fondoPincipal, { paddingBottom: 20 }]}>
+          <Layout style={[styles.fondoPrincipal, { paddingBottom: 20 }]}>
             <Text style={{ color: 'white' }} category="h1">Escoge tu tipo de cuenta</Text>
             <Text style={{ color: 'white' }} category="p2">
               La cuenta Establecimiento es para personas dueñas de canchas disponibles al público. La cuenta Cliente es para personas que desean reservar.
@@ -30,7 +30,7 @@ export const RoleScreen = ({ navigation }: Props) => {
           </Layout>
 
           {/* Cards */}
-          <Layout style={[styles.fondoPincipal, styles.cardContainer]}>
+          <Layout style={[styles.fondoPrincipal, styles.cardContainer]}>
             <Card
               style={styles.card}
               onPress={() => onSelectRole('Establecimiento')}

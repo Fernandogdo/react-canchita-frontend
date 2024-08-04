@@ -10,7 +10,15 @@ export interface AuthState {
   user?: User;
 
   login: (email: string, password: string) => Promise<boolean>;
-  register: (firstName: string, lastName: string, email: string, idType: string, idNumber: string, password: string, role: 'E' | 'C') => Promise<boolean>;
+  register: (
+    firstName: string, 
+    lastName: string, 
+    email: string, 
+    idType: string, 
+    idNumber: string, 
+    password: string, 
+    role: 'E' | 'C'
+  ) => Promise<any>; // Cambiamos el tipo de retorno a 'any' para manejar la respuesta completa.
   checkStatus: () => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -32,7 +40,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     return true;
   },
 
-  register: async (firstName: string, lastName: string, email: string, idType: string, idNumber: string, password: string, role: 'E' | 'C') => {
+  register: async (firstName, lastName, email, idType, idNumber, password, role) => {
     const resp = await authRegister(firstName, lastName, email, idType, idNumber, password, role);
     if (!resp) {
       set({ status: 'unauthenticated', token: undefined, user: undefined });
@@ -47,7 +55,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       set({ status: 'unauthenticated', token: undefined, user: resp.user });
     }
 
-    return true;
+    return resp; // Devuelve la respuesta completa para manejar el user_id en RegisterScreen.
   },
 
   logout: async () => {
@@ -72,4 +80,3 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     set({ status: 'authenticated', token: resp.token, user: resp.user });
   },
 }));
-
