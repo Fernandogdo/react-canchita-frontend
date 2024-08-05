@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { RootStackParams } from '../../navigation/StackNavigator';
 import { StackScreenProps } from '@react-navigation/stack';
@@ -8,11 +9,15 @@ import { MyIcon } from '../../components/ui/MyIcon';
 interface Props extends StackScreenProps<RootStackParams, 'RoleScreen'> {}
 
 export const RoleScreen = ({ navigation }: Props) => {
+  const [pressedCard, setPressedCard] = useState<'Establecimiento' | 'Cliente' | null>(null);
 
   const onSelectRole = (roleLabel: 'Cliente' | 'Establecimiento') => {
-    // Mapea los valores de la interfaz de usuario a los valores que necesitas enviar
-    const role = roleLabel === 'Establecimiento' ? 'E' : 'C';
-    navigation.navigate('RegisterScreen', { role });
+    setPressedCard(roleLabel);
+    setTimeout(() => {
+      const role = roleLabel === 'Establecimiento' ? 'E' : 'C';
+      navigation.navigate('RegisterScreen', { role });
+      setPressedCard(null); // Reset after navigation
+    }, 100); // Adjust delay as needed
   };
 
   return (
@@ -32,20 +37,32 @@ export const RoleScreen = ({ navigation }: Props) => {
           {/* Cards */}
           <Layout style={[styles.fondoPrincipal, styles.cardContainer]}>
             <Card
-              style={styles.card}
+              style={[
+                styles.card,
+                pressedCard === 'Establecimiento' && { backgroundColor: '#4e8b3a' }, // Cambia el color de fondo
+              ]}
               onPress={() => onSelectRole('Establecimiento')}
             >
-              <Layout style={styles.cardContent}>
+              <Layout style={[
+                styles.cardContent,
+                pressedCard === 'Establecimiento' && { backgroundColor: '#4e8b3a' }, // Cambia también el fondo del contenido
+              ]}>
                 <MyIcon name="home-outline" white />
                 <Text style={styles.cardText}>Establecimiento</Text>
               </Layout>
             </Card>
 
             <Card
-              style={styles.card}
+              style={[
+                styles.card,
+                pressedCard === 'Cliente' && { backgroundColor: '#4e8b3a' }, // Cambia el color de fondo
+              ]}
               onPress={() => onSelectRole('Cliente')}
             >
-              <Layout style={styles.cardContent}>
+              <Layout style={[
+                styles.cardContent,
+                pressedCard === 'Cliente' && { backgroundColor: '#4e8b3a' }, // Cambia también el fondo del contenido
+              ]}>
                 <MyIcon name="person-outline" white />
                 <Text style={styles.cardText}>Cliente</Text>
               </Layout>

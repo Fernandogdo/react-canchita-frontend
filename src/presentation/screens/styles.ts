@@ -33,6 +33,12 @@ export const styles = StyleSheet.create({
     justifyContent: 'center', // centrado verticalmente
   },
 
+  titleText: {
+    color: 'white',
+    fontSize: 40,
+    textAlign: 'center'
+  },
+
   textoBase: {
     color: 'white'
   },

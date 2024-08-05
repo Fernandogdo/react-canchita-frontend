@@ -15,11 +15,20 @@ export const CanchitaApp = () => {
   const colorScheme = useColorScheme();
 
   const customDarkTheme = deepmerge(eva.dark, {
-    'color-basic-800': '#393535', // Personaliza el color oscuro
+    'color-primary-500': '#5BA246',
+    'color-basic-800': '#000000',
+    'color-basic-900': '#000000',
+    'color-basic-1000': '#000000',
+    'color-basic-1100': '#000000',
+    'select-background-color': '#282626', // Define un color de fondo para el Select
   });
+  
 
   const theme = colorScheme === 'dark' ? customDarkTheme : eva.light;
-  const backgroundColor = colorScheme === 'dark' ? customDarkTheme['color-basic-800'] : theme['color-basic-100'];
+  const backgroundColor =
+    colorScheme === 'dark'
+      ? customDarkTheme['color-basic-800']
+      : theme['color-basic-100'];
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -31,7 +40,7 @@ export const CanchitaApp = () => {
             colors: {
               primary: theme['color-primary-500'],
               background: backgroundColor,
-              card: theme['color-basic-200'],
+              card: theme['color-basic-100'],
               text: theme['text-basic-color'],
               border: theme['color-basic-800'],
               notification: theme['color-primary-500'],
