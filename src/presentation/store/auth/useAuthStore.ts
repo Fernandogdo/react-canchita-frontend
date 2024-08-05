@@ -9,7 +9,7 @@ export interface AuthState {
   token?: string;
   user?: User;
 
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<any>;
   register: (
     firstName: string, 
     lastName: string, 
@@ -30,14 +30,20 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
 
   login: async (email: string, password: string) => {
     const resp = await authLogin(email, password);
+   
     if (!resp || !resp.token) {
       set({ status: 'unauthenticated', token: undefined, user: undefined });
-      return false;
+      return {
+         transaccion: false,
+         mensaje: resp.mensaje || "error al iniciar sesion", 
+       };
     }
     await StorageAdapter.setItem('token', resp.token);
-    set({ status: 'authenticated', token: resp.token, user: resp.user });
+    set({ status: 'authenticated', token: resp.token });
 
-    return true;
+    return {
+      transaccion: true,
+    };
   },
 
   register: async (firstName, lastName, email, idType, idNumber, password, role) => {

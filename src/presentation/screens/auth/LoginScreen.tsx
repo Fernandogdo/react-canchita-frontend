@@ -34,20 +34,24 @@ export const LoginScreen = ({navigation}: Props) => {
 
   const onLogin = async () => {
     if (form.email.length === 0 || form.password.length === 0) {
-      Alert.alert('Error', 'Usuario o contraseña incorrectos');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Usuario o contraseña incorrectos',
+      });
       return;
     }
     setIsPosting(true);
     const wasSuccessful = await login(form.email, form.password);
     setIsPosting(false);
-
-    if (wasSuccessful) return;
+    if (wasSuccessful.transaccion) return;
 
     Toast.show({
       type: 'error',
       text1: 'Error',
-      text2: 'Usuario o contraseña incorrectos',
+      text2:wasSuccessful.mensaje ,
     });
+    Alert.alert(wasSuccessful.mensaje);
   };
 
   return (
