@@ -6,7 +6,7 @@ import { MyIcon } from '../../components/ui/MyIcon';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/StackNavigator';
 import { useAuthStore } from '../../store/auth/useAuthStore';
-import { styles } from './styles'; // Importa los estilos
+import { styles } from '../styles'; // Importa los estilos
 import { API_URL, STAGE } from '@env';
 
 interface Props extends StackScreenProps<RootStackParams, 'RecoverScreen'> {}
@@ -45,13 +45,13 @@ export const RecoverScreen = ({ navigation }: Props) => {
     >
       <Layout style={styles.containerCentered}>
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
-          <Layout style={[styles.fondoPincipal,{ paddingBottom: 20}]}>
+          <Layout style={[styles.fondoPrincipal,{ paddingBottom: 20}]}>
             <Text style={{ color:'white' }} category="h1">Recuperar contraseña </Text>
             <Text style={{ color:'white' }} category="p2">Ingresa tu correo electrónico para recuperar tu contraseña</Text>
           </Layout>
 
           {/* Inputs */}
-          <Layout style={[styles.fondoPincipal,{ marginTop: 5}]}>
+          <Layout style={[styles.fondoPrincipal,{ marginTop: 5}]}>
             <Input
               placeholder="Correo electrónico"
               keyboardType="email-address"
@@ -75,7 +75,7 @@ export const RecoverScreen = ({ navigation }: Props) => {
          
 
           <Layout
-            style={[styles.fondoPincipal,{
+            style={[styles.fondoPrincipal,{
               alignItems: 'flex-end',
               flexDirection: 'row',
               marginTop: 5,
@@ -92,10 +92,10 @@ export const RecoverScreen = ({ navigation }: Props) => {
             </Text>
           </Layout>
              {/* Space */}
-             <Layout style={[styles.fondoPincipal, { height: 10,  }]} />
+             <Layout style={[styles.fondoPrincipal, { height: 10,  }]} />
 
            {/* Button */}
-           <Layout style={[styles.fondoPincipal]}>
+           <Layout style={[styles.fondoPrincipal]}>
             <Button
               style={styles.button}
               disabled={isPosting}
@@ -104,7 +104,7 @@ export const RecoverScreen = ({ navigation }: Props) => {
               Recuperar contraseña
             </Button>
               {/* Space */}
-              <Layout style={[styles.fondoPincipal, { height: 10,  }]} />
+              <Layout style={[styles.fondoPrincipal, { height: 10,  }]} />
 
             <Button
               style={styles.button}
@@ -114,7 +114,7 @@ export const RecoverScreen = ({ navigation }: Props) => {
               Regresar
             </Button>
           </Layout>
-          <Layout style={[styles.fondoPincipal, { height: 10,  }]} />
+          <Layout style={[styles.fondoPrincipal, { height: 10,  }]} />
 
          
         </ScrollView>

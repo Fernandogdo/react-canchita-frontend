@@ -6,56 +6,91 @@ import { StorageAdapter } from '../../../config/adapters/storage-adapter';
 
 export interface AuthState {
   status: AuthStatus;
-  token?: string;
+  accessToken?: string;
+  refreshToken?: string;
   user?: User;
 
-  login: (email: string, password: string) => Promise<boolean>;
-  register: (fullName: string, email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<any>;
+  register: (
+    firstName: string, 
+    lastName: string, 
+    email: string, 
+    idType: string, 
+    idNumber: string, 
+    password: string, 
+    role: 'E' | 'C'
+  ) => Promise<any>;
   checkStatus: () => Promise<void>;
   logout: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()((set, get) => ({
   status: 'checking',
-  token: undefined,
+  accessToken: undefined,
+  refreshToken: undefined,
   user: undefined,
 
+  
   login: async (email: string, password: string) => {
     const resp = await authLogin(email, password);
-    if (!resp) {
-      set({ status: 'unauthenticated', token: undefined, user: undefined });
-      return false;
-    }
-    await StorageAdapter.setItem('token', resp.token);
-    set({ status: 'authenticated', token: resp.token, user: resp.user });
 
-    return true;
+    // Verifica si la respuesta tiene un token de acceso y de refresh
+    if (resp && 'token' in resp && resp.token) {
+      await StorageAdapter.setItem('accessToken', resp.token);
+      await StorageAdapter.setItem('refreshToken', resp.refreshToken);
+      set({ status: 'authenticated', accessToken: resp.token, refreshToken: resp.refreshToken });
+      return {
+        transaccion: true,
+      };
+    } 
+
+    // Maneja el caso de error o no autenticado
+    set({ status: 'unauthenticated', accessToken: undefined, refreshToken: undefined, user: undefined });
+    return {
+      transaccion: false,
+      mensaje: resp.mensaje || "Error al iniciar sesión",
+    };
   },
 
-  register: async (fullName: string, email: string, password: string) => {
-    const resp = await authRegister(fullName, email, password);
+  register: async (firstName, lastName, email, idType, idNumber, password, role) => {
+    const resp = await authRegister(firstName, lastName, email, idType, idNumber, password, role);
     if (!resp) {
-      set({ status: 'unauthenticated', token: undefined, user: undefined });
+      set({ status: 'unauthenticated', accessToken: undefined, refreshToken: undefined, user: undefined });
       return false;
     }
-    await StorageAdapter.setItem('token', resp.token);
-    set({ status: 'authenticated', token: resp.token, user: resp.user });
+    
+    // Verifica si hay un token de acceso (en registro normalmente no se recibe, pero es buena práctica verificar)
+    if (resp.token) {
+      await StorageAdapter.setItem('accessToken', resp.token);
+      set({ status: 'authenticated', accessToken: resp.token, user: resp.user });
+    } else {
+      set({ status: 'unauthenticated', accessToken: undefined, user: resp.user });
+    }
 
-    return true;
+    return resp;
   },
 
   logout: async () => {
-    await StorageAdapter.removeItem('token');
-    set({ status: 'unauthenticated', token: undefined, user: undefined });
+    await StorageAdapter.removeItem('accessToken');
+    await StorageAdapter.removeItem('refreshToken');
+    set({ status: 'unauthenticated', accessToken: undefined, refreshToken: undefined, user: undefined });
   },
 
   checkStatus: async () => {
-    const resp = await authCheckStatus();
-    if (!resp) {
-      set({ status: 'unauthenticated', token: undefined, user: undefined });
+    const accessToken = await StorageAdapter.getItem('accessToken');
+    const refreshToken = await StorageAdapter.getItem('refreshToken');
+    if (!accessToken) {
+      set({ status: 'unauthenticated', accessToken: undefined, refreshToken: undefined, user: undefined });
       return;
     }
-    await StorageAdapter.setItem('token', resp.token);
-    set({ status: 'authenticated', token: resp.token, user: resp.user });
+
+    const resp = await authCheckStatus();
+    if (!resp) {
+      set({ status: 'unauthenticated', accessToken: undefined, refreshToken: undefined, user: undefined });
+      return;
+    }
+
+    await StorageAdapter.setItem('accessToken', resp.token);
+    set({ status: 'authenticated', accessToken: resp.token, user: resp.user });
   },
 }));

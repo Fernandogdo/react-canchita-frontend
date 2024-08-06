@@ -1,4 +1,3 @@
-
 import { Card, Text } from '@ui-kitten/components';
 import { Product } from '../../../domain/entities/product';
 import { Image } from 'react-native';
