@@ -1,7 +1,6 @@
 import React, {useState} from 'react';
 import {Button, Input, Layout, Text} from '@ui-kitten/components';
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -15,8 +14,6 @@ import {useAuthStore} from '../../store/auth/useAuthStore';
 import {styles} from '../styles'; // Importa los estilos
 import {MyIcon} from '../../components/ui/MyIcon';
 import Toast from 'react-native-toast-message';
-
-// import FastImage from 'react-native-fast-image';
 
 interface Props extends StackScreenProps<RootStackParams, 'LoginScreen'> {}
 
@@ -37,21 +34,27 @@ export const LoginScreen = ({navigation}: Props) => {
       Toast.show({
         type: 'error',
         text1: 'Error',
-        text2: 'Usuario o contraseña incorrectos',
+        text2: 'Por favor ingresa tanto el correo como la contraseña',
       });
       return;
     }
+    
     setIsPosting(true);
-    const wasSuccessful = await login(form.email, form.password);
+    const response = await login(form.email, form.password);
     setIsPosting(false);
-    if (wasSuccessful.transaccion) return;
+    
+    if (response.transaccion) {
+      // Navegar a la siguiente pantalla (por ejemplo, un dashboard)
+      navigation.navigate('DashboardScreen'); // Cambia esto según la ruta que tengas
+      return;
+    }
 
+    // Mostrar mensaje de error del servidor en el Toast
     Toast.show({
       type: 'error',
       text1: 'Error',
-      text2:wasSuccessful.mensaje ,
+      text2: response.mensaje || 'Error al iniciar sesión',
     });
-    Alert.alert(wasSuccessful.mensaje);
   };
 
   return (
@@ -61,16 +64,11 @@ export const LoginScreen = ({navigation}: Props) => {
       <Layout style={styles.containerCentered}>
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
           <View style={localStyles.logoContainer}>
-            {/* <FastImage
-              source={require('../../../assets/canchita-animation.gif')}
+            <Image
+              source={require('../../../assets/canchita-logo.png')}
               style={localStyles.gif}
-              resizeMode={FastImage.resizeMode.contain}
-            /> */}
-              <Image
-                source={require('../../../assets/canchita-logo.png')} // Cambia el nombre del archivo aquí
-                style={localStyles.gif} // Puedes cambiar el estilo si es necesario
-                resizeMode="contain"
-              />
+              resizeMode="contain"
+            />
           </View>
           <Layout style={[styles.fondoPrincipal]}>
             <Text style={localStyles.headerText} category="h1">
@@ -90,7 +88,7 @@ export const LoginScreen = ({navigation}: Props) => {
               onBlur={() => setIsFocused({...isFocused, email: false})}
               accessoryLeft={<MyIcon name="email-outline" white />}
               style={[styles.input, isFocused.email && styles.inputFocused]}
-              textStyle={{color: styles.input.color}} // Cambia el color del texto interno
+              textStyle={{color: styles.input.color}}
             />
             <Input
               placeholder="Contraseña"
@@ -102,7 +100,7 @@ export const LoginScreen = ({navigation}: Props) => {
               onBlur={() => setIsFocused({...isFocused, password: false})}
               accessoryLeft={<MyIcon name="lock-outline" white />}
               style={[styles.input, isFocused.password && styles.inputFocused]}
-              textStyle={{color: styles.input.color}} // Cambia el color del texto interno
+              textStyle={{color: styles.input.color}}
             />
           </Layout>
 
@@ -110,7 +108,7 @@ export const LoginScreen = ({navigation}: Props) => {
             style={[
               styles.fondoPrincipal,
               {
-                alignItems: 'flex-end', // Cambiado a 'center' para centrar el texto
+                alignItems: 'flex-end',
                 flexDirection: 'row',
                 justifyContent: 'center',
                 marginTop: 5,
@@ -122,8 +120,7 @@ export const LoginScreen = ({navigation}: Props) => {
               status="primary"
               category="s1"
               onPress={() => navigation.navigate('RecoverScreen')}>
-              {' '}
-              ¿Olvidaste tu contraseña?{' '}
+              ¿Olvidaste tu contraseña?
             </Text>
           </Layout>
 
@@ -157,12 +154,12 @@ export const LoginScreen = ({navigation}: Props) => {
               status="primary"
               category="s1"
               onPress={() => navigation.navigate('RoleScreen')}>
-              {' '}
-              Registrate{' '}
+              Registrate
             </Text>
           </Layout>
         </ScrollView>
       </Layout>
+      <Toast />
     </KeyboardAvoidingView>
   );
 };

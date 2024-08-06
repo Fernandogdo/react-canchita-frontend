@@ -41,10 +41,10 @@ export const ValidationScreen = ({ route, navigation }: Props) => {
       const onBackPress = () => {
         Alert.alert(
           "Confirmación",
-          "Si no ingresa el código su cuenta no será validada. ¿Está seguro de que desea retroceder?",
+          "Si no ingresa el código su cuenta no será validada. ¿Está seguro de que desea regresar al Inicio de Sesión?",
           [
             { text: "Cancelar", style: "cancel", onPress: () => {} },
-            { text: "Sí", style: "destructive", onPress: () => navigation.goBack() }
+            { text: "Sí", style: "destructive", onPress: () => navigation.navigate('LoginScreen') }
           ]
         );
         return true; // Previene el comportamiento predeterminado
