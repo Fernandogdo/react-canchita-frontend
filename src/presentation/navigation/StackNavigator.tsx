@@ -16,14 +16,14 @@ export type RootStackParams = {
   LoadingScreen: undefined;
   LoginScreen: undefined;
   RoleScreen: undefined;
-  RegisterScreen: { role: 'Cliente' | 'Establecimiento' };
-  EstablishmentRegisterScreen: undefined;
+  RegisterScreen: { role: 'E' | 'C' };  // Cambia aquí a 'E' | 'C'
+  EstablishmentRegisterScreen: { userId: number; email: string };
   EstablishmentDetailScreen: { establishmentId: string }; // Asegúrate de que este tipo esté definido correctamente
   HomeScreen: undefined;
   DashboardScreen: undefined;
   ProductScreen: { productId: string };
   RecoverScreen: undefined;
-  ValidationScreen: undefined;
+  ValidationScreen: { email: string }; // Asegúrate de que ValidationScreen reciba el email
 
 };
 

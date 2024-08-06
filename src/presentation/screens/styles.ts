@@ -33,6 +33,16 @@ export const styles = StyleSheet.create({
     justifyContent: 'center', // centrado verticalmente
   },
 
+  titleText: {
+    color: 'white',
+    fontSize: 40,
+    textAlign: 'center'
+  },
+
+  textoBase: {
+    color: 'white'
+  },
+  
   scrollViewContent: {
     flexGrow: 1,
     justifyContent: 'center', // centrado verticalmente
@@ -50,7 +60,7 @@ export const styles = StyleSheet.create({
     color: '#5BA246',
   },
 
-  fondoPincipal: {
+  fondoPrincipal: {
     backgroundColor: '#000000',
   },
 

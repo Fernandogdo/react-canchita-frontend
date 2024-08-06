@@ -1,16 +1,21 @@
-import React, { useRef, useState } from 'react';
-import { View, TextInput, StyleSheet, KeyboardAvoidingView, Platform, Text } from 'react-native';
+import React, { useRef, useState, useCallback } from 'react';
+import { View, TextInput, StyleSheet, KeyboardAvoidingView, Platform, Text, Alert, BackHandler } from 'react-native';
 import { Layout, Button } from '@ui-kitten/components';
 import { StackScreenProps } from "@react-navigation/stack";
 import { RootStackParams } from "../../navigation/StackNavigator";
 import { ScrollView } from 'react-native-gesture-handler';
 import { styles } from '../styles';
+import { useFocusEffect } from '@react-navigation/native';
 
 interface Props extends StackScreenProps<RootStackParams, 'ValidationScreen'> {}
 
-export const ValidationScreen = ({ navigation }: Props) => {
+export const ValidationScreen = ({ route, navigation }: Props) => {
+  const { email } = route.params;
+
   const [pin, setPin] = useState(['', '', '', '', '', '']);
   const inputs = useRef<Array<TextInput | null>>([]);
+
+  console.log('Validando código enviado a:', email);
 
   const handleChange = (text: string, index: number) => {
     if (text.length > 1) {
@@ -21,17 +26,37 @@ export const ValidationScreen = ({ navigation }: Props) => {
     newPin[index] = text;
     setPin(newPin);
 
-    // Mover al siguiente input automáticamente
     if (text !== '' && index < 5) {
       inputs.current[index + 1]?.focus();
     }
 
-    // Si se completaron todos los campos, imprimir el PIN en la consola
     if (index === 5 && text !== '') {
       console.log('Código PIN completo:', newPin.join(''));
-      // Aquí puedes agregar la lógica para enviar el PIN automáticamente
     }
   };
+
+  // Interceptar el botón de retroceso
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        Alert.alert(
+          "Confirmación",
+          "Si no ingresa el código su cuenta no será validada. ¿Está seguro de que desea regresar al Inicio de Sesión?",
+          [
+            { text: "Cancelar", style: "cancel", onPress: () => {} },
+            { text: "Sí", style: "destructive", onPress: () => navigation.navigate('LoginScreen')}
+            // navigation.navigate('EstablishmentRegisterScreen', {userId, email});
+          ]
+        );
+        return true; // Previene el comportamiento predeterminado
+      };
+
+      BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+      return () =>
+        BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+    }, [navigation])
+  );
 
   return (
     <KeyboardAvoidingView
@@ -40,8 +65,8 @@ export const ValidationScreen = ({ navigation }: Props) => {
     >
       <Layout style={localStyles.containerCentered}>
         <ScrollView contentContainerStyle={localStyles.scrollViewContent}>
-          <Text style={localStyles.headerText}>Ingrese código envisado a</Text>
-          <Text style={localStyles.subText}>Agregue un número PIN para hacer su cuenta más segura.</Text>
+          <Text style={localStyles.headerText}>Ingrese código enviado a {email} </Text>
+          <Text style={localStyles.subText}>El código fue enviado a su correo para validar su cuenta.</Text>
 
           <View style={localStyles.pinContainer}>
             {pin.map((_, index) => (
@@ -72,17 +97,19 @@ const localStyles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#1C1C1E', // Color de fondo
+    backgroundColor: '#000000',
   },
   scrollViewContent: {
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 20,
   },
   headerText: {
     fontSize: 24,
     color: '#FFFFFF',
     marginBottom: 20,
+    textAlign: 'center'
   },
   subText: {
     fontSize: 16,
@@ -93,24 +120,30 @@ const localStyles = StyleSheet.create({
   pinContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '80%',
+    width: '100%',
+    maxWidth: 400,
+    paddingHorizontal: 20,
     marginBottom: 30,
   },
   pinInput: {
-    width: 50,
-    height: 50,
-    borderRadius: 10,
-    borderWidth: 1,
+    flex: 1,
+    height: 60,
+    borderRadius: 15,
+    borderWidth: 2,
     borderColor: '#E5E5EA',
     textAlign: 'center',
     fontSize: 24,
     color: '#FFFFFF',
     backgroundColor: '#2C2C2E',
-  },
-  continueButton: {
-    backgroundColor: '#FF3B30',
-    borderRadius: 25,
-    width: '80%',
+    marginHorizontal: 4,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
 });
 
