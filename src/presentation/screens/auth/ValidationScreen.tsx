@@ -44,7 +44,8 @@ export const ValidationScreen = ({ route, navigation }: Props) => {
           "Si no ingresa el código su cuenta no será validada. ¿Está seguro de que desea regresar al Inicio de Sesión?",
           [
             { text: "Cancelar", style: "cancel", onPress: () => {} },
-            { text: "Sí", style: "destructive", onPress: () => navigation.navigate('LoginScreen') }
+            { text: "Sí", style: "destructive", onPress: () => navigation.navigate('LoginScreen')}
+            // navigation.navigate('EstablishmentRegisterScreen', {userId, email});
           ]
         );
         return true; // Previene el comportamiento predeterminado
