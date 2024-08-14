@@ -40,7 +40,6 @@ export const RegisterScreen = ({route, navigation}: Props) => {
   const {role} = route.params;
   const {register} = useAuthStore();
 
-  // Mapea los valores mostrados al usuario con los valores enviados al servidor
   const idTypeOptions = [
     {label: 'Cédula', value: 'CED'},
     {label: 'RUC', value: 'RUC'},
@@ -48,16 +47,17 @@ export const RegisterScreen = ({route, navigation}: Props) => {
   ];
 
   const [isPosting, setIsPosting] = useState(false);
-  const [isPressed, setIsPressed] = useState(false); // Estado para manejar el cambio de color al presionar
+  const [isPressed, setIsPressed] = useState(false);
 
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',
     email: '',
-    idType: idTypeOptions[0].value, // Valor inicial (CED)
+    idType: idTypeOptions[0].value,
     idNumber: '',
     password: '',
   });
+  const [confirmPassword, setConfirmPassword] = useState(''); // Estado para repetir la contraseña
   const [errors, setErrors] = useState({
     firstName: '',
     lastName: '',
@@ -65,6 +65,7 @@ export const RegisterScreen = ({route, navigation}: Props) => {
     idType: '',
     idNumber: '',
     password: '',
+    confirmPassword: '', // Error para el campo de confirmar contraseña
   });
 
   const [isFocused, setIsFocused] = useState({
@@ -74,11 +75,23 @@ export const RegisterScreen = ({route, navigation}: Props) => {
     idType: false,
     idNumber: false,
     password: false,
+    confirmPassword: false, // Estado de enfoque para confirmar contraseña
   });
 
   const [selectedIdTypeIndex, setSelectedIdTypeIndex] = useState<IndexPath>(
     new IndexPath(0),
   );
+
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false); // Estado para controlar visibilidad de la contraseña
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false); // Estado para controlar visibilidad de confirmar contraseña
+
+  const togglePasswordVisibility = () => {
+    setIsPasswordVisible(!isPasswordVisible);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setIsConfirmPasswordVisible(!isConfirmPasswordVisible);
+  };
 
   const onRegister = async () => {
     let valid = true;
@@ -89,9 +102,9 @@ export const RegisterScreen = ({route, navigation}: Props) => {
       idType: '',
       idNumber: '',
       password: '',
+      confirmPassword: '', // Inicializar error de confirmar contraseña
     };
 
-    // Validaciones
     if (form.firstName.length === 0) {
       newErrors.firstName = 'El nombre es obligatorio';
       valid = false;
@@ -118,6 +131,11 @@ export const RegisterScreen = ({route, navigation}: Props) => {
       valid = false;
     }
 
+    if (form.password !== confirmPassword) {
+      newErrors.confirmPassword = 'Las contraseñas no coinciden';
+      valid = false;
+    }
+
     setErrors(newErrors);
 
     if (!valid) {
@@ -132,7 +150,6 @@ export const RegisterScreen = ({route, navigation}: Props) => {
     setIsPosting(true);
 
     try {
-      // Aquí se llama a la función register y se obtiene la respuesta con el id del usuario
       const response = await register(
         form.firstName,
         form.lastName,
@@ -148,7 +165,7 @@ export const RegisterScreen = ({route, navigation}: Props) => {
         const email = response.user.email;
 
         if (role === 'E') {
-          navigation.navigate('EstablishmentRegisterScreen', {userId, email});
+          navigation.navigate('EstablishmentRegisterScreenStep1', {userId, email});
         } else {
           navigation.navigate('ValidationScreen', {email});
         }
@@ -176,11 +193,6 @@ export const RegisterScreen = ({route, navigation}: Props) => {
             <Text style={styles.titleText} category="h1">
               Crear cuenta
             </Text>
-            {/* <Text
-              style={[styles.textoBase, {textAlign: 'center'}]}
-              category="p2">
-              Por favor, crea una cuenta para continuar
-            </Text> */}
             {role && (
               <Text style={{color: 'white', marginTop: 20}} category="s1">
                 Rol seleccionado: {role === 'E' ? 'Establecimiento' : 'Cliente'}
@@ -192,7 +204,7 @@ export const RegisterScreen = ({route, navigation}: Props) => {
           <Layout style={[styles.fondoPrincipal, {marginTop: 15}]}>
             <Input
               placeholder="Nombre"
-              accessoryLeft={<MyIcon name="person-outline" />}
+              accessoryLeft={<MyIcon name="person-outline" white />}
               value={form.firstName}
               onChangeText={firstName => setForm({...form, firstName})}
               status={errors.firstName ? 'danger' : 'basic'}
@@ -204,11 +216,11 @@ export const RegisterScreen = ({route, navigation}: Props) => {
                 isFocused.firstName && styles.inputFocused,
                 errors.firstName ? styles.inputError : null,
               ]}
-              textStyle={{color: styles.input.color}} // Cambia el color del texto interno
+              textStyle={{color: styles.input.color}}
             />
             <Input
               placeholder="Apellido"
-              accessoryLeft={<MyIcon name="person-outline" />}
+              accessoryLeft={<MyIcon name="person-outline" white />}
               value={form.lastName}
               onChangeText={lastName => setForm({...form, lastName})}
               status={errors.lastName ? 'danger' : 'basic'}
@@ -220,13 +232,13 @@ export const RegisterScreen = ({route, navigation}: Props) => {
                 isFocused.lastName && styles.inputFocused,
                 errors.lastName ? styles.inputError : null,
               ]}
-              textStyle={{color: styles.input.color}} // Cambia el color del texto interno
+              textStyle={{color: styles.input.color}}
             />
             <Input
               placeholder="Correo electrónico"
               keyboardType="email-address"
               autoCapitalize="none"
-              accessoryLeft={<MyIcon name="email-outline" />}
+              accessoryLeft={<MyIcon name="email-outline" white />}
               value={form.email}
               onChangeText={email => setForm({...form, email})}
               status={errors.email ? 'danger' : 'basic'}
@@ -238,7 +250,7 @@ export const RegisterScreen = ({route, navigation}: Props) => {
                 isFocused.email && styles.inputFocused,
                 errors.email ? styles.inputError : null,
               ]}
-              textStyle={{color: styles.input.color}} // Cambia el color del texto interno
+              textStyle={{color: styles.input.color}}
             />
 
             <View
@@ -246,31 +258,31 @@ export const RegisterScreen = ({route, navigation}: Props) => {
                 styles.input,
                 {
                   flexDirection: 'row',
-                  alignItems: 'center', // Centra verticalmente el icono y el picker
+                  alignItems: 'center',
                   marginTop: 5,
                   marginBottom: 5,
                   marginLeft: 9,
                   marginRight: 9,
-                  paddingVertical: 0, // Reduce el padding vertical para hacer el contenedor más pequeño
-                  height: 40, // Ajusta la altura total del View para que sea más pequeño
+                  paddingVertical: 0,
+                  height: 40,
                 },
               ]}>
-              <MyIcon name="credit-card-outline" style={{marginLeft: 6}} />
+              <MyIcon name="credit-card-outline" style={{marginLeft: 6}} white />
               <Picker
                 selectedValue={form.idType}
                 onValueChange={itemValue =>
                   setForm({...form, idType: itemValue})
                 }
-                style={{color: '#7f7c7c', flex: 1}} // flex: 1 para que el picker ocupe el espacio restante
-                dropdownIconColor="white" // Cambiar color del ícono de despliegue
-                itemStyle={{color: '#737373'}} // Cambiar color de la opción por defecto
+                style={{color: '#7f7c7c', flex: 1}}
+                dropdownIconColor="white"
+                itemStyle={{color: '#737373'}}
               >
                 {idTypeOptions.map(option => (
                   <Picker.Item
                     key={option.value}
                     label={option.label}
                     value={option.value}
-                    color="#a4a4a4" // Cambia el color de cada opción a un gris más oscuro
+                    color="#a4a4a4"
                   />
                 ))}
               </Picker>
@@ -278,7 +290,7 @@ export const RegisterScreen = ({route, navigation}: Props) => {
 
             <Input
               placeholder="Identificación"
-              accessoryLeft={<MyIcon name="hash-outline" />}
+              accessoryLeft={<MyIcon name="hash-outline" white />}
               value={form.idNumber}
               onChangeText={idNumber => setForm({...form, idNumber})}
               status={errors.idNumber ? 'danger' : 'basic'}
@@ -290,13 +302,21 @@ export const RegisterScreen = ({route, navigation}: Props) => {
                 isFocused.idNumber && styles.inputFocused,
                 errors.idNumber ? styles.inputError : null,
               ]}
-              textStyle={{color: styles.input.color}} // Cambia el color del texto interno
+              textStyle={{color: styles.input.color}}
             />
             <Input
               placeholder="Contraseña"
               autoCapitalize="none"
-              secureTextEntry
-              accessoryLeft={<MyIcon name="lock-outline" />}
+              secureTextEntry={!isPasswordVisible} // Controla la visibilidad de la contraseña
+              accessoryLeft={<MyIcon name="lock-outline" white />}
+              accessoryRight={() => (
+                <TouchableOpacity onPress={togglePasswordVisibility}>
+                  <MyIcon
+                    name={isPasswordVisible ? 'eye-off-outline' : 'eye-outline'}
+                    white
+                  />
+                </TouchableOpacity>
+              )}
               value={form.password}
               onChangeText={password => setForm({...form, password})}
               status={errors.password ? 'danger' : 'basic'}
@@ -308,15 +328,39 @@ export const RegisterScreen = ({route, navigation}: Props) => {
                 isFocused.password && styles.inputFocused,
                 errors.password ? styles.inputError : null,
               ]}
-              textStyle={{color: styles.input.color}} // Cambia el color del texto interno
+              textStyle={{color: styles.input.color}}
+            />
+
+            <Input
+              placeholder="Repetir contraseña"
+              autoCapitalize="none"
+              secureTextEntry={!isConfirmPasswordVisible} // Controla la visibilidad de la confirmación de contraseña
+              accessoryLeft={<MyIcon name="lock-outline" white />}
+              accessoryRight={() => (
+                <TouchableOpacity onPress={toggleConfirmPasswordVisibility}>
+                  <MyIcon
+                    name={isConfirmPasswordVisible ? 'eye-off-outline' : 'eye-outline'}
+                    white
+                  />
+                </TouchableOpacity>
+              )}
+              value={confirmPassword}
+              onChangeText={password => setConfirmPassword(password)}
+              status={errors.confirmPassword ? 'danger' : 'basic'}
+              caption={errors.confirmPassword}
+              onFocus={() => setIsFocused({...isFocused, confirmPassword: true})}
+              onBlur={() => setIsFocused({...isFocused, confirmPassword: false})}
+              style={[
+                styles.input,
+                isFocused.confirmPassword && styles.inputFocused,
+                errors.confirmPassword ? styles.inputError : null,
+              ]}
+              textStyle={{color: styles.input.color}}
             />
           </Layout>
 
-          {/* Space */}
           <Layout style={[styles.fondoPrincipal, {height: 10}]} />
 
-          {/* Button */}
-          {/* Button */}
           <Layout style={styles.fondoPrincipal}>
             <TouchableOpacity
               activeOpacity={0.7}
@@ -337,7 +381,6 @@ export const RegisterScreen = ({route, navigation}: Props) => {
             </TouchableOpacity>
           </Layout>
 
-          {/* Información para crear cuenta */}
           <Layout style={[styles.fondoPrincipal, {height: 50}]} />
 
           <Layout

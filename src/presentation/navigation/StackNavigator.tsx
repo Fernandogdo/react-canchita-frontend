@@ -6,10 +6,11 @@ import { RegisterScreen } from '../screens/auth/RegisterScreen';
 import { HomeScreen } from '../screens/home/HomeScreen';
 import { ProductScreen } from '../screens/product/ProductScreen';
 import { RoleScreen } from '../screens/auth/RoleScreen';
-import { EstablishmentRegisterScreen } from '../screens/auth/EstablishmentRegisterScreen';
+import { EstablishmentRegisterScreenStep1 } from '../screens/auth/EstablishmentRegisterScreenStep1';
+import { EstablishmentRegisterScreenStep2 } from '../screens/auth/EstablishmentRegisterScreenStep2';
 import { DashboardScreen } from '../screens/home/DashboardScreen';
 import { EstablishmentDetailScreen } from '../screens/home/EstablishmentDetailScreen';
-import {RecoverScreen} from '../screens/auth/RecoverScreen';
+import { RecoverScreen } from '../screens/auth/RecoverScreen';
 import { ValidationScreen } from '../screens/auth/ValidationScreen';
 
 export type RootStackParams = {
@@ -17,14 +18,14 @@ export type RootStackParams = {
   LoginScreen: undefined;
   RoleScreen: undefined;
   RegisterScreen: { role: 'E' | 'C' };  // Cambia aquí a 'E' | 'C'
-  EstablishmentRegisterScreen: { userId: number; email: string };
+  EstablishmentRegisterScreenStep1: { userId: number; email: string };
+  EstablishmentRegisterScreenStep2: { userId: number; email: string; form: any }; // Agrega los parámetros necesarios
   EstablishmentDetailScreen: { establishmentId: string }; // Asegúrate de que este tipo esté definido correctamente
   HomeScreen: undefined;
   DashboardScreen: undefined;
   ProductScreen: { productId: string };
   RecoverScreen: undefined;
   ValidationScreen: { email: string }; // Asegúrate de que ValidationScreen reciba el email
-
 };
 
 const Stack = createStackNavigator<RootStackParams>();
@@ -43,7 +44,6 @@ export const StackNavigator = () => {
       initialRouteName="LoadingScreen"
       screenOptions={{
         headerShown: false,
-        // cardStyleInterpolator: fadeAnimation,
       }}
     >
       <Stack.Screen
@@ -68,8 +68,13 @@ export const StackNavigator = () => {
       />
       <Stack.Screen
         options={{ cardStyleInterpolator: fadeAnimation }}
-        name="EstablishmentRegisterScreen"
-        component={EstablishmentRegisterScreen}
+        name="EstablishmentRegisterScreenStep1"
+        component={EstablishmentRegisterScreenStep1}
+      />
+      <Stack.Screen
+        options={{ cardStyleInterpolator: fadeAnimation }}
+        name="EstablishmentRegisterScreenStep2"
+        component={EstablishmentRegisterScreenStep2}
       />
       <Stack.Screen
         options={{ cardStyleInterpolator: fadeAnimation }}
@@ -81,19 +86,19 @@ export const StackNavigator = () => {
         name="DashboardScreen"
         component={DashboardScreen}
       />
-       <Stack.Screen
+      <Stack.Screen
         name="EstablishmentDetailScreen"
         component={EstablishmentDetailScreen}
         options={{ headerShown: false }}
       />
-        <Stack.Screen
+      <Stack.Screen
         name="ValidationScreen"
         component={ValidationScreen}
         options={{ headerShown: false }}
       />
       <Stack.Screen name="ProductScreen" component={ProductScreen} />
       <Stack.Screen
-        options={{cardStyleInterpolator: fadeAnimation}}
+        options={{ cardStyleInterpolator: fadeAnimation }}
         name="RecoverScreen"
         component={RecoverScreen}
       />
