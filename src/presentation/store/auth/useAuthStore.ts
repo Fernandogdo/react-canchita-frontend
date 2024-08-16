@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { User } from '../../../domain/entities/user';
 import { AuthStatus } from '../../../infrastructure/interfaces/auth.status';
-import { authCheckStatus, authLogin, authRegister } from '../../../actions/auth/auth';
+import { authCheckStatus, authLogin, authRegister, sendOTP } from '../../../actions/auth/auth';
 import { StorageAdapter } from '../../../config/adapters/storage-adapter';
 
 export interface AuthState {
@@ -33,24 +33,50 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   
   login: async (email: string, password: string) => {
     const resp = await authLogin(email, password);
-
-    // Verifica si la respuesta tiene un token de acceso y de refresh
+  
     if (resp && 'token' in resp && resp.token) {
       await StorageAdapter.setItem('accessToken', resp.token);
       await StorageAdapter.setItem('refreshToken', resp.refreshToken);
-      set({ status: 'authenticated', accessToken: resp.token, refreshToken: resp.refreshToken });
+  
+      // Verificación de la propiedad validated
+      if (resp.user.validated === false) {
+        // Si validated es false, se envía el correo al endpoint para enviar el OTP
+        const otpResponse = await sendOTP(resp.user.email);
+        if (!otpResponse.success) {
+          return {
+            transaccion: false,
+            mensaje: otpResponse.message,
+          };
+        }
+      }
+  
+      set({
+        status: 'authenticated',
+        accessToken: resp.token,
+        refreshToken: resp.refreshToken,
+        user: resp.user,
+      });
       return {
         transaccion: true,
+        user: resp.user,
       };
-    } 
-
-    // Maneja el caso de error o no autenticado
-    set({ status: 'unauthenticated', accessToken: undefined, refreshToken: undefined, user: undefined });
+    }
+  
+    set({
+      status: 'unauthenticated',
+      accessToken: undefined,
+      refreshToken: undefined,
+      user: undefined,
+    });
     return {
       transaccion: false,
       mensaje: resp.mensaje || "Error al iniciar sesión",
     };
   },
+  
+  
+  
+  
 
   register: async (firstName, lastName, email, idType, idNumber, password, role) => {
     const resp = await authRegister(firstName, lastName, email, idType, idNumber, password, role);

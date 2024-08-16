@@ -10,7 +10,9 @@ import { useFocusEffect } from '@react-navigation/native';
 interface Props extends StackScreenProps<RootStackParams, 'ValidationScreen'> {}
 
 export const ValidationScreen = ({ route, navigation }: Props) => {
-  const { email } = route.params;
+  const { email, user_id } = route.params;
+  
+  console.log("🚀 ~ ValidationScreen ~ email, user_id:", email, user_id)
 
   const [pin, setPin] = useState(['', '', '', '', '', '']);
   const inputs = useRef<Array<TextInput | null>>([]);
@@ -35,6 +37,12 @@ export const ValidationScreen = ({ route, navigation }: Props) => {
     }
   };
 
+  const handleValidate = () => {
+    const pinCode = pin.join('');
+    console.log('Código PIN ingresado:', pinCode);
+    // Aquí puedes agregar la lógica para validar el PIN
+  };
+
   // Interceptar el botón de retroceso
   useFocusEffect(
     useCallback(() => {
@@ -45,7 +53,6 @@ export const ValidationScreen = ({ route, navigation }: Props) => {
           [
             { text: "Cancelar", style: "cancel", onPress: () => {} },
             { text: "Sí", style: "destructive", onPress: () => navigation.navigate('LoginScreen')}
-            // navigation.navigate('EstablishmentRegisterScreen', {userId, email});
           ]
         );
         return true; // Previene el comportamiento predeterminado
@@ -83,7 +90,7 @@ export const ValidationScreen = ({ route, navigation }: Props) => {
             ))}
           </View>
 
-          <Button style={styles.button} onPress={() => console.log('Código PIN:', pin.join(''))}>
+          <Button style={styles.button} onPress={handleValidate}>
             Validar Código
           </Button>
         </ScrollView>
@@ -91,6 +98,7 @@ export const ValidationScreen = ({ route, navigation }: Props) => {
     </KeyboardAvoidingView>
   );
 };
+
 
 const localStyles = StyleSheet.create({
   containerCentered: {

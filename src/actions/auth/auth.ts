@@ -4,29 +4,30 @@ import { User } from '../../domain/entities/user';
 import { AuthResponse } from '../../infrastructure/interfaces/auth.responses';
 
 const returnUserToken = (data: any, isLogin: boolean) => {
+  const user: User = {
+    id: data.user.id.toString(),
+    email: data.user.email,
+    fullName: `${data.user.first_name} ${data.user.last_name}`,
+    isActive: data.user.is_active,
+    roles: [data.user.role],
+    validated: data.user.validated,  // Incluye la propiedad validated
+  };
+
   if (isLogin) {
-    // Login, donde se devuelve los tokens
     return {
       mensaje: data.detail ?? "Login exitoso",
-      token: data.access || null,   // token de acceso
-      refreshToken: data.refresh || null, // token de refresco
+      token: data.token || null,
+      refreshToken: data.refresh || null,
+      user: user,
     };
   } else {
-    // Registro, información del usuario sin tokens
-    const user: User = {
-      id: data.id.toString(),
-      email: data.email,
-      fullName: `${data.first_name} ${data.last_name}`,
-      isActive: data.is_active,
-      roles: [data.role],
-    };
-
     return {
       user: user,
       token: null,
     };
   }
 };
+
 
 
 
@@ -63,6 +64,7 @@ export const authLogin = async (email: string, password: string) => {
 };
 
 
+
 export const authRegister = async (firstName: string, lastName: string, email: string, idType: string, idNumber: string, password: string, role: 'E' | 'C') => {
   email = email.toLowerCase();
 
@@ -87,6 +89,20 @@ export const authRegister = async (firstName: string, lastName: string, email: s
     return null;
   }
 };
+
+export const sendOTP = async (emailOrId: string) => {
+  try {
+    const { data } = await tesloApi.post('/users/reset_otp/', {
+      value: emailOrId,
+    });
+    console.log('OTP enviado exitosamente:', data);
+    return { success: true };
+  } catch (error) {
+    console.log('Error al enviar OTP:', error);
+    return { success: false, message: 'No se pudo enviar el código de validación. Inténtalo de nuevo.' };
+  }
+};
+
 
 export const authCheckStatus = async () => {
   try {

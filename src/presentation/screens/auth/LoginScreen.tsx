@@ -44,18 +44,28 @@ export const LoginScreen = ({navigation}: Props) => {
     setIsPosting(false);
     
     if (response.transaccion) {
-      // Navegar a la siguiente pantalla (por ejemplo, un dashboard)
-      navigation.navigate('DashboardScreen'); // Cambia esto según la ruta que tengas
+      const { user } = response;
+  
+      console.log('Usuario logueado:', user);
+  
+      // Verificación de si está validado el usuario
+      if (user.validated) {
+        navigation.navigate('DashboardScreen');
+      } else {
+        navigation.navigate('ValidationScreen', { email: user.email, user_id: user.id });
+      }
+  
       return;
     }
-
-    // Mostrar mensaje de error del servidor en el Toast
+  
     Toast.show({
       type: 'error',
       text1: 'Error',
       text2: response.mensaje || 'Error al iniciar sesión',
     });
   };
+  
+  
 
   return (
     <KeyboardAvoidingView
