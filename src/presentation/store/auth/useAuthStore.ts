@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { User } from '../../../domain/entities/user';
 import { AuthStatus } from '../../../infrastructure/interfaces/auth.status';
-import { authCheckStatus, authLogin, authRegister, sendOTP } from '../../../actions/auth/auth';
+import { accountValidator, authCheckStatus, authLogin, authRegister, sendOTP } from '../../../actions/auth/auth';
 import { StorageAdapter } from '../../../config/adapters/storage-adapter';
 
 export interface AuthState {
@@ -22,6 +22,7 @@ export interface AuthState {
   ) => Promise<any>;
   checkStatus: () => Promise<void>;
   logout: () => Promise<void>;
+  validateOtp: (code: string) => Promise<any>;
 }
 
 export const useAuthStore = create<AuthState>()((set, get) => ({
@@ -80,27 +81,66 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
 
   register: async (firstName, lastName, email, idType, idNumber, password, role) => {
     const resp = await authRegister(firstName, lastName, email, idType, idNumber, password, role);
-    if (!resp) {
-      set({ status: 'unauthenticated', accessToken: undefined, refreshToken: undefined, user: undefined });
-      return false;
-    }
     
-    // Verifica si hay un token de acceso (en registro normalmente no se recibe, pero es buena práctica verificar)
-    if (resp.token) {
+    if ('success' in resp && resp.success === false) {
+      // Manejar el caso donde la registración falló y se devolvió un error
+      set({ status: 'unauthenticated', accessToken: undefined, refreshToken: undefined, user: undefined });
+      return resp; // Devuelve el error para que pueda ser manejado en la UI
+    }
+  
+    if ('token' in resp && resp.token) {
       await StorageAdapter.setItem('accessToken', resp.token);
       set({ status: 'authenticated', accessToken: resp.token, user: resp.user });
-    } else {
+    } else if ('user' in resp) {
+      // Manejar el caso donde no se recibió un token, pero sí un usuario (registro exitoso sin token)
       set({ status: 'unauthenticated', accessToken: undefined, user: resp.user });
+    } else {
+      // Si no hay ni token ni usuario, algo salió mal
+      set({ status: 'unauthenticated', accessToken: undefined, refreshToken: undefined, user: undefined });
     }
-
+  
     return resp;
   },
+  
+  
+  
 
   logout: async () => {
     await StorageAdapter.removeItem('accessToken');
     await StorageAdapter.removeItem('refreshToken');
     set({ status: 'unauthenticated', accessToken: undefined, refreshToken: undefined, user: undefined });
   },
+
+  //Validar cuenta con OTP
+  validateOtp: async (code: string) => {
+    const user = get().user;
+    if (!user) {
+      return {
+        success: false,
+        message: 'Usuario no autenticado',
+      };
+    }
+
+    const resp = await accountValidator(code, user.id);
+    if (resp.success) {
+      set({
+        user: {
+          ...user,
+          validated: true, // Actualiza el estado del usuario como validado
+        },
+      });
+      return {
+        success: true,
+        message: 'Cuenta validada exitosamente',
+      };
+    }
+
+    return {
+      success: false,
+      message: resp.message || 'Error al validar el código',
+    };
+  },
+  
 
   checkStatus: async () => {
     const accessToken = await StorageAdapter.getItem('accessToken');

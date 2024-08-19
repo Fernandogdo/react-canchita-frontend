@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
-import { Button, Input, Layout, Text } from '@ui-kitten/components';
-import { KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Button, Input, Layout, Text} from '@ui-kitten/components'; // Importa `View` si no lo tienes ya
+import { KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, View } from 'react-native'; // Importa `TouchableOpacity` si no lo tienes ya
 import { StackScreenProps } from '@react-navigation/stack';
 import { styles } from '../styles';
 import Toast from 'react-native-toast-message';
 import { MyIcon } from '../../components/ui/MyIcon';
 import { useEstablishmentStore } from '../../store/establishment/useEstablishmentStore';
 import { RootStackParams } from '../../navigation/StackNavigator';
+import { getProvinces, getCantonsByProvince } from '../../../actions/provinces/get-provinces-cantons';
+import { Picker } from '@react-native-picker/picker';
+import { Province, Canton } from '../../../domain/entities/province';  // Importa la interfaz Province
 
 interface Props extends StackScreenProps<RootStackParams, 'EstablishmentRegisterScreenStep2'> {}
 
@@ -14,7 +17,7 @@ export const EstablishmentRegisterScreenStep2 = ({ route, navigation }: Props) =
   const { userId, email, form: initialForm } = route.params;
 
   const [form, setForm] = useState({
-    ...initialForm, // Incluir los datos de la primera pantalla
+    ...initialForm,
     address: '',
     latitude: '',
     longitude: '',
@@ -28,7 +31,49 @@ export const EstablishmentRegisterScreenStep2 = ({ route, navigation }: Props) =
     google_address: '',
   });
 
+  const [provinces, setProvinces] = useState<Province[]>([]);  // Usa la interfaz Province
+  const [cantons, setCantons] = useState<Canton[]>([]);        // Usa la interfaz Canton
+  const [selectedProvince, setSelectedProvince] = useState<number | undefined>();
+  const [selectedCanton, setSelectedCanton] = useState<number | undefined>();
+
   const { createEstablishment } = useEstablishmentStore();
+
+  useEffect(() => {
+    const fetchProvinces = async () => {
+      try {
+        const provincesData = await getProvinces();
+        setProvinces(provincesData);
+      } catch (error) {
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: 'No se pudieron cargar las provincias',
+        });
+      }
+    };
+
+    fetchProvinces();
+  }, []);
+
+  useEffect(() => {
+    const fetchCantons = async () => {
+      if (selectedProvince) {
+        try {
+          const cantonsData = await getCantonsByProvince(selectedProvince);
+          setCantons(cantonsData);
+          setSelectedCanton(undefined); // Resetear el cantón seleccionado al cambiar la provincia
+        } catch (error) {
+          Toast.show({
+            type: 'error',
+            text1: 'Error',
+            text2: 'No se pudieron cargar los cantones',
+          });
+        }
+      }
+    };
+
+    fetchCantons();
+  }, [selectedProvince]);
 
   const validateFields = () => {
     let valid = true;
@@ -59,6 +104,15 @@ export const EstablishmentRegisterScreenStep2 = ({ route, navigation }: Props) =
       valid = false;
     }
 
+    if (!selectedCanton) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Debes seleccionar un cantón',
+      });
+      valid = false;
+    }
+
     setErrors(newErrors);
     return valid;
   };
@@ -78,7 +132,7 @@ export const EstablishmentRegisterScreenStep2 = ({ route, navigation }: Props) =
       name: form.establishmentName,
       description: form.description,
       ruc: form.ruc,
-      canton_id: 1, // Puedes ajustar esto según sea necesario
+      canton_id: selectedCanton as number, // Asegura que canton_id es un número
       address: form.address,
       latitude: form.latitude,
       longitude: form.longitude,
@@ -89,7 +143,7 @@ export const EstablishmentRegisterScreenStep2 = ({ route, navigation }: Props) =
 
     const wasSuccessful = await createEstablishment(establishment);
     if (wasSuccessful) {
-      navigation.navigate('ValidationScreen', { email });
+      navigation.navigate('ValidationScreen', { email, user_id: userId.toString() });
     } else {
       Toast.show({
         type: 'error',
@@ -112,6 +166,74 @@ export const EstablishmentRegisterScreenStep2 = ({ route, navigation }: Props) =
           </Layout>
 
           <Layout style={[styles.fondoPrincipal, { marginTop: 20 }]}>
+            <View
+              style={[
+                styles.input,
+                {
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  marginTop: 5,
+                  marginBottom: 5,
+                  marginLeft: 9,
+                  marginRight: 9,
+                  paddingVertical: 0,
+                  height: 40,
+                },
+              ]}
+            >
+              <MyIcon name="map-outline" style={{ marginLeft: 6 }} white />
+              <Picker
+                selectedValue={selectedProvince}
+                onValueChange={(itemValue) => setSelectedProvince(itemValue)}
+                style={{ color: '#7f7c7c', flex: 1 }}
+                dropdownIconColor="white"
+              >
+                <Picker.Item label="Selecciona una provincia" value={undefined} color="#a4a4a4" />
+                {provinces.map((province) => (
+                  <Picker.Item
+                    key={province.id}
+                    label={province.description}
+                    value={province.id}
+                    color="#a4a4a4"
+                  />
+                ))}
+              </Picker>
+            </View>
+
+            <View
+              style={[
+                styles.input,
+                {
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  marginTop: 5,
+                  marginBottom: 5,
+                  marginLeft: 9,
+                  marginRight: 9,
+                  paddingVertical: 0,
+                  height: 40,
+                },
+              ]}
+            >
+              <MyIcon name="map-outline" style={{ marginLeft: 6 }} white />
+              <Picker
+                selectedValue={selectedCanton}
+                onValueChange={(itemValue) => setSelectedCanton(itemValue)}
+                style={{ color: '#7f7c7c', flex: 1 }}
+                dropdownIconColor="white"
+              >
+                <Picker.Item label="Selecciona un cantón" value={undefined} color="#a4a4a4" />
+                {cantons.map((canton) => (
+                  <Picker.Item
+                    key={canton.id}
+                    label={canton.description}
+                    value={canton.id}
+                    color="#a4a4a4"
+                  />
+                ))}
+              </Picker>
+            </View>
+
             <Input
               placeholder="Dirección"
               accessoryLeft={<MyIcon name="pin-outline" white />}
@@ -159,13 +281,21 @@ export const EstablishmentRegisterScreenStep2 = ({ route, navigation }: Props) =
           <Layout style={[styles.fondoPrincipal, { height: 15 }]} />
 
           <Layout style={styles.fondoPrincipal}>
-            <Button
-              style={styles.button}
+            <TouchableOpacity
+              activeOpacity={0.7}
               onPress={onRegisterEstablishment}
-              accessoryRight={<MyIcon name="checkmark-circle-2-outline" white />}
+              style={{
+                backgroundColor: '#5BA246',
+                borderRadius: 20,
+                padding: 15,
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexDirection: 'row',
+              }}
             >
-              Registrar Establecimiento
-            </Button>
+              <MyIcon name="checkmark-circle-2-outline" white />
+              <Text style={{ color: 'white', marginLeft: 10 }}>Registrar Establecimiento</Text>
+            </TouchableOpacity>
           </Layout>
         </ScrollView>
       </Layout>

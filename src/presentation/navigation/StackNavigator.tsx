@@ -25,7 +25,7 @@ export type RootStackParams = {
   DashboardScreen: undefined;
   ProductScreen: { productId: string };
   RecoverScreen: undefined;
-  ValidationScreen: { email: string, user_id?: string }; // Asegúrate de que ValidationScreen reciba el email
+  ValidationScreen: { email: string, user_id: string }; // Asegúrate de que ValidationScreen reciba el email
 };
 
 const Stack = createStackNavigator<RootStackParams>();

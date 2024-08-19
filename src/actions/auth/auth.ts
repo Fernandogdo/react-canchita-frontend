@@ -5,12 +5,12 @@ import { AuthResponse } from '../../infrastructure/interfaces/auth.responses';
 
 const returnUserToken = (data: any, isLogin: boolean) => {
   const user: User = {
-    id: data.user.id.toString(),
-    email: data.user.email,
-    fullName: `${data.user.first_name} ${data.user.last_name}`,
-    isActive: data.user.is_active,
-    roles: [data.user.role],
-    validated: data.user.validated,  // Incluye la propiedad validated
+    id: data.id.toString(),  // Ahora accedes directamente a data
+    email: data.email,
+    fullName: `${data.first_name} ${data.last_name}`,
+    isActive: data.is_active,
+    roles: [data.role],
+    validated: data.validated,
   };
 
   if (isLogin) {
@@ -30,7 +30,6 @@ const returnUserToken = (data: any, isLogin: boolean) => {
 
 
 
-
 export const authLogin = async (email: string, password: string) => {
   email = email.toLowerCase();
 
@@ -39,10 +38,23 @@ export const authLogin = async (email: string, password: string) => {
       username: email,
       password: password,
     });
-    console.log('Login:', data);
-    return returnUserToken(data, true);
+
+    // Asumiendo que la respuesta es como la que mencionaste:
+    const result = returnUserToken({
+      ...data, // data contiene `token`, `refresh`, y `user`
+      id: data.user.id,
+      email: data.user.email,
+      first_name: data.user.first_name,
+      last_name: data.user.last_name,
+      is_active: data.user.is_active,
+      role: data.user.role,
+      validated: data.user.validated,
+    }, true);
+
+    return result;
+
   } catch (error: any) {
-    let mensaje = "";
+    let mensaje = "No nos pudimos conectar al servidor";
 
     if (error.response) {
       const errorData = error.response.data;
@@ -51,21 +63,26 @@ export const authLogin = async (email: string, password: string) => {
       } else {
         mensaje = "Error al iniciar sesión";
       }
-    } else if (error.request) {
-      mensaje = "No nos pudimos conectar al servidor";
-    } else {
-      mensaje = "No nos pudimos conectar al servidor";
     }
 
     return {
-      mensaje: mensaje
+      mensaje: mensaje,
     };
   }
 };
 
 
 
-export const authRegister = async (firstName: string, lastName: string, email: string, idType: string, idNumber: string, password: string, role: 'E' | 'C') => {
+
+export const authRegister = async (
+  firstName: string,
+  lastName: string,
+  email: string,
+  idType: string,
+  idNumber: string,
+  password: string,
+  role: 'E' | 'C'
+) => {
   email = email.toLowerCase();
 
   try {
@@ -81,14 +98,20 @@ export const authRegister = async (firstName: string, lastName: string, email: s
 
     console.log('Cuenta creada exitosamente:', data);
 
-    // Si no se recibe un token, solo devuelve la información del usuario
-    return returnUserToken(data.data,false);
+    // Extrae el usuario de data
+    return returnUserToken(data.data, false);
 
-  } catch (error) {
+  } catch (error: any) {
     console.log('Error al crear la cuenta:', error);
-    return null;
+
+    // Extrae el mensaje de error desde la respuesta del servidor
+    const errorMessage = error.response?.data?.message || 'Error al crear la cuenta';
+    
+    // Devuelve el error capturado
+    return { success: false, message: errorMessage };
   }
 };
+
 
 export const sendOTP = async (emailOrId: string) => {
   try {
@@ -102,6 +125,29 @@ export const sendOTP = async (emailOrId: string) => {
     return { success: false, message: 'No se pudo enviar el código de validación. Inténtalo de nuevo.' };
   }
 };
+
+
+export const accountValidator = async (code: string, user_id: string) => {
+  console.log("🚀 ~ accountValidator ~ user_id:", user_id)
+  try {
+    const { data } = await tesloApi.post(`/users/${user_id}/validate_email/`, {
+      code, 
+    });
+    console.log("🚀 ~ accountValidator ~ data:", data);
+    return { success: true, data }; // Devuelve los datos si la validación es exitosa
+  } catch (error: any) {
+    console.log("Error al validar la cuenta:", error);
+    
+    let message = 'No se pudo validar la cuenta. Inténtalo de nuevo.';
+
+    if (error.response && error.response.data && error.response.data.message) {
+      message = error.response.data.message; // Extrae el mensaje de error del backend
+    }
+
+    return { success: false, message, data: error.response?.data?.data || [] }; // Devuelve el mensaje y cualquier dato relevante
+  }
+};
+
 
 
 export const authCheckStatus = async () => {

@@ -6,18 +6,16 @@ import { RootStackParams } from "../../navigation/StackNavigator";
 import { ScrollView } from 'react-native-gesture-handler';
 import { styles } from '../styles';
 import { useFocusEffect } from '@react-navigation/native';
+import { useAuthStore } from '../../store/auth/useAuthStore';
 
 interface Props extends StackScreenProps<RootStackParams, 'ValidationScreen'> {}
 
 export const ValidationScreen = ({ route, navigation }: Props) => {
-  const { email, user_id } = route.params;
+  const { email, user_id } = route.params;  // Asegúrate de que ambos se reciban
+  const { validateOtp } = useAuthStore(); // Accede a la función validateOtp del store
   
-  console.log("🚀 ~ ValidationScreen ~ email, user_id:", email, user_id)
-
   const [pin, setPin] = useState(['', '', '', '', '', '']);
   const inputs = useRef<Array<TextInput | null>>([]);
-
-  console.log('Validando código enviado a:', email);
 
   const handleChange = (text: string, index: number) => {
     if (text.length > 1) {
@@ -37,13 +35,22 @@ export const ValidationScreen = ({ route, navigation }: Props) => {
     }
   };
 
-  const handleValidate = () => {
+  const handleValidate = async () => {
     const pinCode = pin.join('');
     console.log('Código PIN ingresado:', pinCode);
-    // Aquí puedes agregar la lógica para validar el PIN
+
+    // Envía el código OTP al servidor
+    const response = await validateOtp(pinCode);
+
+    if (response.success) {
+      Alert.alert('Éxito', response.message, [
+        { text: 'OK', onPress: () => navigation.navigate('LoginScreen') } // Navega a la siguiente pantalla si es necesario
+      ]);
+    } else {
+      Alert.alert('Error', response.message);
+    }
   };
 
-  // Interceptar el botón de retroceso
   useFocusEffect(
     useCallback(() => {
       const onBackPress = () => {

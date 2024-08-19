@@ -158,13 +158,13 @@ export const LoginScreen = ({navigation}: Props) => {
                 justifyContent: 'center',
               },
             ]}>
-            <Text style={{color: 'white'}}>¿No tienes cuenta?</Text>
+            <Text style={{color: 'white'}}>¿No tienes cuenta? </Text>
             <Text
               style={styles.textButton}
               status="primary"
               category="s1"
               onPress={() => navigation.navigate('RoleScreen')}>
-              Registrate
+               Registrate
             </Text>
           </Layout>
         </ScrollView>
