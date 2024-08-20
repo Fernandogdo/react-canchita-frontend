@@ -14,11 +14,14 @@ import {useAuthStore} from '../../store/auth/useAuthStore';
 import {styles} from '../styles'; // Importa los estilos
 import {MyIcon} from '../../components/ui/MyIcon';
 import Toast from 'react-native-toast-message';
+import { usePermissionStore } from '../../store/permissions/usePermissionStore';
 
 interface Props extends StackScreenProps<RootStackParams, 'LoginScreen'> {}
 
 export const LoginScreen = ({navigation}: Props) => {
   const {login} = useAuthStore();
+  const {locationStatus} = usePermissionStore();  // Importa el estado de permisos
+
   const [isPosting, setIsPosting] = useState(false);
   const [form, setForm] = useState({
     email: '',
@@ -50,7 +53,13 @@ export const LoginScreen = ({navigation}: Props) => {
   
       // Verificación de si está validado el usuario
       if (user.validated) {
-        navigation.navigate('DashboardScreen');
+        console.log("🚀 ~ onLogin ~ user.validated:", user.validated)
+        // Verifica el estado de la ubicación antes de redirigir
+        if (locationStatus === 'granted') {
+          navigation.navigate('DashboardScreen');
+        } else {
+          navigation.navigate('PermissionsScreen');
+        }
       } else {
         navigation.navigate('ValidationScreen', { email: user.email, user_id: user.id });
       }

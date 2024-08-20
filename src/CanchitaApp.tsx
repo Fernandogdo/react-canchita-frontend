@@ -8,6 +8,7 @@ import {useColorScheme} from 'react-native';
 import {AuthProvider} from './presentation/providers/AuthProvider';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import deepmerge from 'deepmerge';
+import { PermissionsChecker } from './presentation/providers/PermissionsChecker';
 
 const queryClient = new QueryClient();
 
@@ -22,7 +23,6 @@ export const CanchitaApp = () => {
     'color-basic-1100': '#000000',
     'select-background-color': '#282626', // Define un color de fondo para el Select
   });
-  
 
   const theme = colorScheme === 'dark' ? customDarkTheme : eva.light;
   const backgroundColor =
@@ -47,7 +47,9 @@ export const CanchitaApp = () => {
             },
           }}>
           <AuthProvider>
-            <StackNavigator />
+            <PermissionsChecker>
+              <StackNavigator />
+            </PermissionsChecker>
           </AuthProvider>
         </NavigationContainer>
       </ApplicationProvider>

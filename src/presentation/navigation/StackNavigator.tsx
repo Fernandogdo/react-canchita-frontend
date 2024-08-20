@@ -12,6 +12,7 @@ import { DashboardScreen } from '../screens/home/DashboardScreen';
 import { EstablishmentDetailScreen } from '../screens/home/EstablishmentDetailScreen';
 import { RecoverScreen } from '../screens/auth/RecoverScreen';
 import { ValidationScreen } from '../screens/auth/ValidationScreen';
+import { PermissionsScreen } from '../screens/permission/PermissionsScreen';
 
 export type RootStackParams = {
   LoadingScreen: undefined;
@@ -25,6 +26,7 @@ export type RootStackParams = {
   DashboardScreen: undefined;
   ProductScreen: { productId: string };
   RecoverScreen: undefined;
+  PermissionsScreen: undefined;
   ValidationScreen: { email: string, user_id: string }; // Asegúrate de que ValidationScreen reciba el email
 };
 
@@ -101,6 +103,11 @@ export const StackNavigator = () => {
         options={{ cardStyleInterpolator: fadeAnimation }}
         name="RecoverScreen"
         component={RecoverScreen}
+      />
+       <Stack.Screen
+        options={{ cardStyleInterpolator: fadeAnimation }}
+        name="PermissionsScreen"
+        component={PermissionsScreen}
       />
     </Stack.Navigator>
   );
