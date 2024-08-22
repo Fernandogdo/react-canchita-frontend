@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Input, Layout, Text} from '@ui-kitten/components'; // Importa `View` si no lo tienes ya
-import { KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, View } from 'react-native'; // Importa `TouchableOpacity` si no lo tienes ya
+import { Button, Input, Layout, Text} from '@ui-kitten/components';
+import { KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, View } from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
 import { styles } from '../styles';
 import Toast from 'react-native-toast-message';
@@ -9,7 +9,9 @@ import { useEstablishmentStore } from '../../store/establishment/useEstablishmen
 import { RootStackParams } from '../../navigation/StackNavigator';
 import { getProvinces, getCantonsByProvince } from '../../../actions/provinces/get-provinces-cantons';
 import { Picker } from '@react-native-picker/picker';
-import { Province, Canton } from '../../../domain/entities/province';  // Importa la interfaz Province
+import { Province, Canton } from '../../../domain/entities/province';
+import { useDebounce } from 'use-debounce';
+import axios from 'axios';
 
 interface Props extends StackScreenProps<RootStackParams, 'EstablishmentRegisterScreenStep2'> {}
 
@@ -31,8 +33,8 @@ export const EstablishmentRegisterScreenStep2 = ({ route, navigation }: Props) =
     google_address: '',
   });
 
-  const [provinces, setProvinces] = useState<Province[]>([]);  // Usa la interfaz Province
-  const [cantons, setCantons] = useState<Canton[]>([]);        // Usa la interfaz Canton
+  const [provinces, setProvinces] = useState<Province[]>([]);
+  const [cantons, setCantons] = useState<Canton[]>([]);
   const [selectedProvince, setSelectedProvince] = useState<number | undefined>();
   const [selectedCanton, setSelectedCanton] = useState<number | undefined>();
 
@@ -55,13 +57,16 @@ export const EstablishmentRegisterScreenStep2 = ({ route, navigation }: Props) =
     fetchProvinces();
   }, []);
 
+  // Usa debounce en la selección de provincias
+  const [debouncedProvince] = useDebounce(selectedProvince, 300);
+
   useEffect(() => {
     const fetchCantons = async () => {
-      if (selectedProvince) {
+      if (debouncedProvince) {
         try {
-          const cantonsData = await getCantonsByProvince(selectedProvince);
+          const cantonsData = await getCantonsByProvince(debouncedProvince);
           setCantons(cantonsData);
-          setSelectedCanton(undefined); // Resetear el cantón seleccionado al cambiar la provincia
+          setSelectedCanton(undefined);
         } catch (error) {
           Toast.show({
             type: 'error',
@@ -73,7 +78,7 @@ export const EstablishmentRegisterScreenStep2 = ({ route, navigation }: Props) =
     };
 
     fetchCantons();
-  }, [selectedProvince]);
+  }, [debouncedProvince]);
 
   const validateFields = () => {
     let valid = true;
@@ -132,7 +137,7 @@ export const EstablishmentRegisterScreenStep2 = ({ route, navigation }: Props) =
       name: form.establishmentName,
       description: form.description,
       ruc: form.ruc,
-      canton_id: selectedCanton as number, // Asegura que canton_id es un número
+      canton_id: selectedCanton as number,
       address: form.address,
       latitude: form.latitude,
       longitude: form.longitude,
