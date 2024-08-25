@@ -1,41 +1,63 @@
 import React, { useState } from 'react';
 import { Button, Input, Layout, Text } from '@ui-kitten/components';
-import { Alert, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
+import {  KeyboardAvoidingView, Platform } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { MyIcon } from '../../components/ui/MyIcon';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigation/StackNavigator';
 import { useAuthStore } from '../../store/auth/useAuthStore';
 import { styles } from '../styles'; // Importa los estilos
-import { API_URL, STAGE } from '@env';
+
+import Toast from 'react-native-toast-message';
 
 interface Props extends StackScreenProps<RootStackParams, 'RecoverScreen'> {}
 
 export const RecoverScreen = ({ navigation }: Props) => {
   
-  const { login } = useAuthStore();
+  const { sendResetOtp } = useAuthStore();
   const [isPosting, setIsPosting] = useState(false);
   const [form, setForm] = useState({
     email: '',
-    password: '',
   });
   const [isFocused, setIsFocused] = useState({
     email: false,
-    password: false,
   });
 
-  const onLogin = async () => {
-    if (form.email.length === 0 || form.password.length === 0) {
-         Alert.alert('Error', 'Usuario o contraseña incorrectos');
+  const onSend = async () => {
+    if (form.email.length === 0) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Por favor ingresa tanto el correo o identificación',
+      });
       return;
     }
     setIsPosting(true);
-    const wasSuccessful = await login(form.email, form.password);
+    const wasSuccessful = await sendResetOtp(form.email);
     setIsPosting(false);
+    if (!wasSuccessful.transaccion) 
+      {
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: wasSuccessful.mensaje,
+          
+        });
+      
+      }
+      
+      else{
+        Toast.show({
+          type: 'success',
+          text1: '',
+          text2: wasSuccessful.mensaje,
+        });
+        navigation.navigate('ResetPassScreen', { email: form.email });
+        //navigation.navigate('ResetPassScreen');
 
-    if (wasSuccessful) return;
-
-    Alert.alert('Error', 'Usuario o contraseña incorrectos');
+      }
+      
+   setIsPosting(false);
   };
 
   return (
@@ -47,14 +69,13 @@ export const RecoverScreen = ({ navigation }: Props) => {
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
           <Layout style={[styles.fondoPrincipal,{ paddingBottom: 20}]}>
             <Text style={{ color:'white' }} category="h1">Recuperar contraseña </Text>
-            <Text style={{ color:'white' }} category="p2">Ingresa tu correo electrónico para recuperar tu contraseña</Text>
+            <Text style={{ color:'white' }} category="p2">Ingresa tu correo electrónico   o identificación para recuperar tu contraseña</Text>
           </Layout>
 
           {/* Inputs */}
           <Layout style={[styles.fondoPrincipal,{ marginTop: 5}]}>
             <Input
-              placeholder="Correo electrónico"
-              keyboardType="email-address"
+              placeholder="Correo electrónico / ID"
               autoCapitalize="none"
               value={form.email}
               onChangeText={email => setForm({ ...form, email })}
@@ -100,7 +121,7 @@ export const RecoverScreen = ({ navigation }: Props) => {
               style={styles.button}
               disabled={isPosting}
               accessoryRight={<MyIcon name="arrow-forward-outline" white />}
-              onPress={onLogin}>
+              onPress={onSend}>
               Recuperar contraseña
             </Button>
               {/* Space */}
@@ -119,6 +140,7 @@ export const RecoverScreen = ({ navigation }: Props) => {
          
         </ScrollView>
       </Layout>
+      <Toast />
     </KeyboardAvoidingView>
   );
 };

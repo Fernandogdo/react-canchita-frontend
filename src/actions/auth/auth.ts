@@ -119,7 +119,7 @@ export const sendOTP = async (emailOrId: string) => {
       value: emailOrId,
     });
     console.log('OTP enviado exitosamente:', data);
-    return { success: true };
+    return { success: true,message: data.detail};
   } catch (error) {
     console.log('Error al enviar OTP:', error);
     return { success: false, message: 'No se pudo enviar el código de validación. Inténtalo de nuevo.' };
@@ -157,5 +157,21 @@ export const authCheckStatus = async () => {
   } catch (error) {
     console.log({ error });
     return null;
+  }
+};
+
+export const resetPass = async (emailOrId: string,code_otp:string,password:string) => {
+  try {
+    const { data } = await tesloApi.post('/users/reset_password/', {
+      value: emailOrId,
+      code_otp,
+      password,
+    });
+
+    console.log('OTP enviado exitosamente:', data);
+    return { success: true,message: data.detail};
+  } catch (error) {
+    console.log('Error al enviar OTP:', error);
+    return { success: false, message: 'No se pudo restablecer la contraseña. Inténtalo de nuevo.' };
   }
 };
