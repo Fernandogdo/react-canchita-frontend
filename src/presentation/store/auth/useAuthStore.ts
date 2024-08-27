@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { User } from '../../../domain/entities/user';
 import { AuthStatus } from '../../../infrastructure/interfaces/auth.status';
-import { accountValidator, authCheckStatus, authLogin, authRegister, sendOTP } from '../../../actions/auth/auth';
+import { accountValidator, authCheckStatus, authLogin, authRegister, sendOTP,resetPass } from '../../../actions/auth/auth';
 import { StorageAdapter } from '../../../config/adapters/storage-adapter';
 
 export interface AuthState {
@@ -23,6 +23,8 @@ export interface AuthState {
   checkStatus: () => Promise<void>;
   logout: () => Promise<void>;
   validateOtp: (code: string) => Promise<any>;
+  sendResetOtp:(email:string) =>Promise<any>;
+  resetPassword:(email:string,code_otp:string,password:string)=>Promise<any>;
 }
 
 export const useAuthStore = create<AuthState>()((set, get) => ({
@@ -158,5 +160,35 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
 
     await StorageAdapter.setItem('accessToken', resp.token);
     set({ status: 'authenticated', accessToken: resp.token, user: resp.user });
+  },
+  sendResetOtp: async (email: string) => {
+    const otpResponse = await sendOTP(email);
+    if (!otpResponse.success) {
+      return {
+        transaccion: false,
+        mensaje: otpResponse.message,
+      };
+    }
+    else{
+      return {
+        transaccion: true,
+        mensaje: otpResponse.message,
+      };
+    }
+  },
+  resetPassword: async (email:string,code_otp:string,password:string) => {
+    const otpResponse = await resetPass(email,code_otp,password);
+    if (!otpResponse.success) {
+      return {
+        transaccion: false,
+        mensaje: otpResponse.message,
+      };
+    }
+    else{
+      return {
+        transaccion: true,
+        mensaje: otpResponse.message,
+      };
+    }
   },
 }));

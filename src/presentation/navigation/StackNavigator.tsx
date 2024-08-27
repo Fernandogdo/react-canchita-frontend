@@ -13,6 +13,7 @@ import { EstablishmentDetailScreen } from '../screens/home/EstablishmentDetailSc
 import { RecoverScreen } from '../screens/auth/RecoverScreen';
 import { ValidationScreen } from '../screens/auth/ValidationScreen';
 import { PermissionsScreen } from '../screens/permission/PermissionsScreen';
+import { ResetPassScreen } from '../screens/auth/ResetPassScreen';
 
 export type RootStackParams = {
   LoadingScreen: undefined;
@@ -28,6 +29,7 @@ export type RootStackParams = {
   RecoverScreen: undefined;
   PermissionsScreen: undefined;
   ValidationScreen: { email: string, user_id: string }; // Asegúrate de que ValidationScreen reciba el email
+  ResetPassScreen: {email: string};
 };
 
 const Stack = createStackNavigator<RootStackParams>();
@@ -108,6 +110,11 @@ export const StackNavigator = () => {
         options={{ cardStyleInterpolator: fadeAnimation }}
         name="PermissionsScreen"
         component={PermissionsScreen}
+      />
+       <Stack.Screen
+        options={{ cardStyleInterpolator: fadeAnimation }}
+        name="ResetPassScreen"
+        component={ResetPassScreen}
       />
     </Stack.Navigator>
   );
