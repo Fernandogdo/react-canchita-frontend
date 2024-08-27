@@ -18,7 +18,9 @@ const tesloApi = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
-  }
+  },
+  timeout: 20000, // 20 segundos
+
 });
 
 // TODO: Interceptors
