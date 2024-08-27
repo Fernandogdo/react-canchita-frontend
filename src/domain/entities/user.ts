@@ -4,4 +4,5 @@ export interface User {
   fullName: string;
   isActive: boolean;
   roles:    string[];
+  validated: boolean;  // Nueva propiedad añadida
 }

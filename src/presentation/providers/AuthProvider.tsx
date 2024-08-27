@@ -17,6 +17,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     if ( status !== 'checking' ) {
       if ( status === 'authenticated' ) {
+        console.log("🚀 ~ useEffect ~ status:", status)
         navigation.reset({
           index: 0,
           routes: [{ name: 'DashboardScreen' }],
@@ -28,8 +29,6 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
         })
       }
     }
-  
-    
   }, [status])
   
   

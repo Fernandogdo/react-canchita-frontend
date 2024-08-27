@@ -6,16 +6,16 @@ import { RootStackParams } from "../../navigation/StackNavigator";
 import { ScrollView } from 'react-native-gesture-handler';
 import { styles } from '../styles';
 import { useFocusEffect } from '@react-navigation/native';
+import { useAuthStore } from '../../store/auth/useAuthStore';
 
 interface Props extends StackScreenProps<RootStackParams, 'ValidationScreen'> {}
 
 export const ValidationScreen = ({ route, navigation }: Props) => {
-  const { email } = route.params;
-
+  const { email, user_id } = route.params;  // Asegúrate de que ambos se reciban
+  const { validateOtp } = useAuthStore(); // Accede a la función validateOtp del store
+  
   const [pin, setPin] = useState(['', '', '', '', '', '']);
   const inputs = useRef<Array<TextInput | null>>([]);
-
-  console.log('Validando código enviado a:', email);
 
   const handleChange = (text: string, index: number) => {
     if (text.length > 1) {
@@ -35,7 +35,22 @@ export const ValidationScreen = ({ route, navigation }: Props) => {
     }
   };
 
-  // Interceptar el botón de retroceso
+  const handleValidate = async () => {
+    const pinCode = pin.join('');
+    console.log('Código PIN ingresado:', pinCode);
+
+    // Envía el código OTP al servidor
+    const response = await validateOtp(pinCode);
+
+    if (response.success) {
+      Alert.alert('Éxito', response.message, [
+        { text: 'OK', onPress: () => navigation.navigate('LoginScreen') } // Navega a la siguiente pantalla si es necesario
+      ]);
+    } else {
+      Alert.alert('Error', response.message);
+    }
+  };
+
   useFocusEffect(
     useCallback(() => {
       const onBackPress = () => {
@@ -45,7 +60,6 @@ export const ValidationScreen = ({ route, navigation }: Props) => {
           [
             { text: "Cancelar", style: "cancel", onPress: () => {} },
             { text: "Sí", style: "destructive", onPress: () => navigation.navigate('LoginScreen')}
-            // navigation.navigate('EstablishmentRegisterScreen', {userId, email});
           ]
         );
         return true; // Previene el comportamiento predeterminado
@@ -83,7 +97,7 @@ export const ValidationScreen = ({ route, navigation }: Props) => {
             ))}
           </View>
 
-          <Button style={styles.button} onPress={() => console.log('Código PIN:', pin.join(''))}>
+          <Button style={styles.button} onPress={handleValidate}>
             Validar Código
           </Button>
         </ScrollView>
@@ -91,6 +105,7 @@ export const ValidationScreen = ({ route, navigation }: Props) => {
     </KeyboardAvoidingView>
   );
 };
+
 
 const localStyles = StyleSheet.create({
   containerCentered: {

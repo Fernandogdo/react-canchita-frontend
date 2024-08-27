@@ -14,11 +14,14 @@ import {useAuthStore} from '../../store/auth/useAuthStore';
 import {styles} from '../styles'; // Importa los estilos
 import {MyIcon} from '../../components/ui/MyIcon';
 import Toast from 'react-native-toast-message';
+import { usePermissionStore } from '../../store/permissions/usePermissionStore';
 
 interface Props extends StackScreenProps<RootStackParams, 'LoginScreen'> {}
 
 export const LoginScreen = ({navigation}: Props) => {
   const {login} = useAuthStore();
+  const {locationStatus} = usePermissionStore();  // Importa el estado de permisos
+
   const [isPosting, setIsPosting] = useState(false);
   const [form, setForm] = useState({
     email: '',
@@ -44,18 +47,34 @@ export const LoginScreen = ({navigation}: Props) => {
     setIsPosting(false);
     
     if (response.transaccion) {
-      // Navegar a la siguiente pantalla (por ejemplo, un dashboard)
-      navigation.navigate('DashboardScreen'); // Cambia esto según la ruta que tengas
+      const { user } = response;
+  
+      console.log('Usuario logueado:', user);
+  
+      // Verificación de si está validado el usuario
+      if (user.validated) {
+        console.log("🚀 ~ onLogin ~ user.validated:", user.validated)
+        // Verifica el estado de la ubicación antes de redirigir
+        if (locationStatus === 'granted') {
+          navigation.navigate('DashboardScreen');
+        } else {
+          navigation.navigate('PermissionsScreen');
+        }
+      } else {
+        navigation.navigate('ValidationScreen', { email: user.email, user_id: user.id });
+      }
+  
       return;
     }
-
-    // Mostrar mensaje de error del servidor en el Toast
+  
     Toast.show({
       type: 'error',
       text1: 'Error',
       text2: response.mensaje || 'Error al iniciar sesión',
     });
   };
+  
+  
 
   return (
     <KeyboardAvoidingView
@@ -148,13 +167,13 @@ export const LoginScreen = ({navigation}: Props) => {
                 justifyContent: 'center',
               },
             ]}>
-            <Text style={{color: 'white'}}>¿No tienes cuenta?</Text>
+            <Text style={{color: 'white'}}>¿No tienes cuenta? </Text>
             <Text
               style={styles.textButton}
               status="primary"
               category="s1"
               onPress={() => navigation.navigate('RoleScreen')}>
-              Registrate
+               Registrate
             </Text>
           </Layout>
         </ScrollView>

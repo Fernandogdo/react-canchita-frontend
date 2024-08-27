@@ -1,117 +1,62 @@
 import React, {useState} from 'react';
-// import MapView, { Marker, Callout } from 'react-native-maps';
-import {View, StyleSheet, Dimensions} from 'react-native';
-import {Layout, Text, Button, Card} from '@ui-kitten/components';
+import {StyleSheet} from 'react-native';
+import {Layout, Text, Button} from '@ui-kitten/components';
 import {useNavigation, NavigationProp} from '@react-navigation/native';
 import {RootStackParams} from '../../navigation/StackNavigator';
-import { FAB } from '../../components/ui/FAB';
-import { useAuthStore } from '../../store/auth/useAuthStore';
-
-interface Establishment {
-  id: string;
-  name: string;
-  description: string;
-  latitude: number;
-  longitude: number;
-}
-
-const establishments: Establishment[] = [
-  {
-    id: '1',
-    name: 'Cancha 1',
-    description: 'Descripción de Cancha 1',
-    latitude: -0.180653,
-    longitude: -78.467834,
-  },
-  {
-    id: '2',
-    name: 'Cancha 2',
-    description: 'Descripción de Cancha 2',
-    latitude: -0.190653,
-    longitude: -78.477834,
-  },
-  // Agrega más canchas según sea necesario
-];
+import {FAB} from '../../components/ui/FAB';
+import {useAuthStore} from '../../store/auth/useAuthStore';
+import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
 
 export const DashboardScreen = () => {
-  const [selectedEstablishment, setSelectedEstablishment] =
-    useState<Establishment | null>(null);
+  const [selectedMarker, setSelectedMarker] = useState<{ latitude: number, longitude: number } | null>(null);
   const navigation = useNavigation<NavigationProp<RootStackParams>>();
 
-  const {logout} = useAuthStore()
+  const {logout} = useAuthStore();
 
-
-  const onMarkerPress = (establishment: Establishment) => {
-    setSelectedEstablishment(establishment);
-  };
-
-  const onViewDetails = () => {
-    if (selectedEstablishment) {
-      navigation.navigate('EstablishmentDetailScreen', {
-        establishmentId: selectedEstablishment.id,
-      });
-    }
+  const onMapPress = (event: any) => {
+    const {latitude, longitude} = event.nativeEvent.coordinate;
+    setSelectedMarker({latitude, longitude});
   };
 
   const onLogout = async () => {
     await logout();
-    navigation.navigate('LoginScreen')
+    navigation.navigate('LoginScreen');
   };
 
   return (
     <Layout style={styles.container}>
-      <Text>Dashboard</Text>
-      {/* <MapView
+      <MapView
+        provider={PROVIDER_GOOGLE}
         style={styles.map}
-        initialRe<gion={{
-          latitude: -0.180653,
-          longitude: -78.467834,
-          latitudeDelta: 0.1,
-          longitudeDelta: 0.1,
+        region={{
+          latitude: -2.897095,
+          longitude: -79.021482,
+          latitudeDelta: 0.015,
+          longitudeDelta: 0.0121,
         }}
+        zoomEnabled={true}
+        scrollEnabled={true}
+        showsUserLocation={true}
+        followsUserLocation={true}
+        onPress={onMapPress} // Captura las pulsaciones en el mapa
       >
-        {establishments.map((establishment) => (
+        {selectedMarker && (
           <Marker
-            key={establishment.id}
-            coordinate={{
-              latitude: establishment.latitude,
-              longitude: establishment.longitude,
-            }}
-            onPress={() => onMarkerPress(establishment)}
-          >
-            <Callout>
-              <Text>{establishment.name}</Text>
-            </Callout>
-          </Marker>
-        ))}
-      </MapView> */}
-
-      {selectedEstablishment && (
-        <Card style={styles.infoCard}>
-          <Text category="h6">{selectedEstablishment.name}</Text>
-          <Text>{selectedEstablishment.description}</Text>
-          <Button onPress={onViewDetails}>Ver detalles</Button>
-        </Card>
-      )}
+            coordinate={selectedMarker}
+            title="Nuevo marcador"
+            description="Ubicación seleccionada"
+          />
+        )}
+      </MapView>
 
       <FAB
         iconName="plus-outline"
         onPress={() => navigation.navigate('ProductScreen', {productId: 'new'})}
-        style={{
-          position: 'absolute',
-          bottom: 30,
-          right: 20,
-        }}
+        style={styles.fab}
       />
 
-      <Button
-        onPress={onLogout}
-        style={{
-          position: 'absolute',
-          bottom: 30,
-          left: 20,
-        }}>
-        Cerrar Sesion
+      <Button onPress={onLogout} style={styles.logoutButton}>
+        Cerrar Sesión
       </Button>
     </Layout>
   );
@@ -122,13 +67,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   map: {
-    width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height,
+    width: '100%',
+    height: '87.5%', // 3.5/4 de la pantalla
   },
-  infoCard: {
+  fab: {
     position: 'absolute',
-    bottom: 30,
-    left: 20,
+    bottom: 20,
     right: 20,
   },
+  logoutButton: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+  },
 });
+
+export default DashboardScreen;

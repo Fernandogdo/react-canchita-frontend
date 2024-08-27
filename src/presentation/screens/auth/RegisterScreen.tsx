@@ -40,7 +40,7 @@ export const RegisterScreen = ({route, navigation}: Props) => {
   const {role} = route.params;
   const {register} = useAuthStore();
 
-  const idTypeOptions = [
+  const type_identificationOptions = [
     {label: 'Cédula', value: 'CED'},
     {label: 'RUC', value: 'RUC'},
     {label: 'Pasaporte', value: 'PAS'},
@@ -53,8 +53,8 @@ export const RegisterScreen = ({route, navigation}: Props) => {
     firstName: '',
     lastName: '',
     email: '',
-    idType: idTypeOptions[0].value,
-    idNumber: '',
+    type_identification: type_identificationOptions[0].value,
+    identification_number: '',
     password: '',
   });
   const [confirmPassword, setConfirmPassword] = useState(''); // Estado para repetir la contraseña
@@ -62,8 +62,8 @@ export const RegisterScreen = ({route, navigation}: Props) => {
     firstName: '',
     lastName: '',
     email: '',
-    idType: '',
-    idNumber: '',
+    type_identification: '',
+    identification_number: '',
     password: '',
     confirmPassword: '', // Error para el campo de confirmar contraseña
   });
@@ -72,13 +72,13 @@ export const RegisterScreen = ({route, navigation}: Props) => {
     firstName: false,
     lastName: false,
     email: false,
-    idType: false,
-    idNumber: false,
+    type_identification: false,
+    identification_number: false,
     password: false,
     confirmPassword: false, // Estado de enfoque para confirmar contraseña
   });
 
-  const [selectedIdTypeIndex, setSelectedIdTypeIndex] = useState<IndexPath>(
+  const [selectedtype_identificationIndex, setSelectedtype_identificationIndex] = useState<IndexPath>(
     new IndexPath(0),
   );
 
@@ -99,45 +99,45 @@ export const RegisterScreen = ({route, navigation}: Props) => {
       firstName: '',
       lastName: '',
       email: '',
-      idType: '',
-      idNumber: '',
+      type_identification: '',
+      identification_number: '',
       password: '',
       confirmPassword: '', // Inicializar error de confirmar contraseña
     };
-
+    
     if (form.firstName.length === 0) {
       newErrors.firstName = 'El nombre es obligatorio';
       valid = false;
     }
-
+  
     if (form.lastName.length === 0) {
       newErrors.lastName = 'El apellido es obligatorio';
       valid = false;
     }
-
+  
     if (!validateEmail(form.email)) {
       newErrors.email = 'El correo electrónico no es válido';
       valid = false;
     }
-
-    if (form.idNumber.length === 0) {
-      newErrors.idNumber = 'La identificación es obligatoria';
+  
+    if (form.identification_number.length === 0) {
+      newErrors.identification_number = 'La identificación es obligatoria';
       valid = false;
     }
-
+  
     if (!validatePassword(form.password)) {
       newErrors.password =
         'La contraseña debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas y números';
       valid = false;
     }
-
+  
     if (form.password !== confirmPassword) {
       newErrors.confirmPassword = 'Las contraseñas no coinciden';
       valid = false;
     }
-
+  
     setErrors(newErrors);
-
+  
     if (!valid) {
       Toast.show({
         type: 'error',
@@ -146,42 +146,52 @@ export const RegisterScreen = ({route, navigation}: Props) => {
       });
       return;
     }
-
+  
     setIsPosting(true);
-
+  
     try {
       const response = await register(
         form.firstName,
         form.lastName,
         form.email,
-        form.idType,
-        form.idNumber,
+        form.type_identification,
+        form.identification_number,
         form.password,
         role,
       );
-
+  
       if (response && response.user) {
         const userId = response.user.id;
         const email = response.user.email;
-
+  
         if (role === 'E') {
           navigation.navigate('EstablishmentRegisterScreenStep1', {userId, email});
         } else {
-          navigation.navigate('ValidationScreen', {email});
+          navigation.navigate('ValidationScreen', { email, user_id: userId });
         }
+      } else if (response && 'message' in response) {
+        // Mostrar el mensaje de error del servidor en el Toast
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: response.message,
+        });
       } else {
         throw new Error('Error al obtener el ID de usuario');
       }
-    } catch (error) {
+    } catch (error: any) {
+      const errorMessage = error.message || 'Error al crear la cuenta';
       Toast.show({
         type: 'error',
         text1: 'Error',
-        text2: 'Error al crear la cuenta',
+        text2: errorMessage,
       });
     } finally {
       setIsPosting(false);
     }
   };
+  
+  
 
   return (
     <KeyboardAvoidingView
@@ -269,15 +279,15 @@ export const RegisterScreen = ({route, navigation}: Props) => {
               ]}>
               <MyIcon name="credit-card-outline" style={{marginLeft: 6}} white />
               <Picker
-                selectedValue={form.idType}
+                selectedValue={form.type_identification}
                 onValueChange={itemValue =>
-                  setForm({...form, idType: itemValue})
+                  setForm({...form, type_identification: itemValue})
                 }
                 style={{color: '#7f7c7c', flex: 1}}
                 dropdownIconColor="white"
                 itemStyle={{color: '#737373'}}
               >
-                {idTypeOptions.map(option => (
+                {type_identificationOptions.map(option => (
                   <Picker.Item
                     key={option.value}
                     label={option.label}
@@ -291,16 +301,16 @@ export const RegisterScreen = ({route, navigation}: Props) => {
             <Input
               placeholder="Identificación"
               accessoryLeft={<MyIcon name="hash-outline" white />}
-              value={form.idNumber}
-              onChangeText={idNumber => setForm({...form, idNumber})}
-              status={errors.idNumber ? 'danger' : 'basic'}
-              caption={errors.idNumber}
-              onFocus={() => setIsFocused({...isFocused, idNumber: true})}
-              onBlur={() => setIsFocused({...isFocused, idNumber: false})}
+              value={form.identification_number}
+              onChangeText={identification_number => setForm({...form, identification_number})}
+              status={errors.identification_number ? 'danger' : 'basic'}
+              caption={errors.identification_number}
+              onFocus={() => setIsFocused({...isFocused, identification_number: true})}
+              onBlur={() => setIsFocused({...isFocused, identification_number: false})}
               style={[
                 styles.input,
-                isFocused.idNumber && styles.inputFocused,
-                errors.idNumber ? styles.inputError : null,
+                isFocused.identification_number && styles.inputFocused,
+                errors.identification_number ? styles.inputError : null,
               ]}
               textStyle={{color: styles.input.color}}
             />
