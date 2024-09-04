@@ -40,6 +40,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     if (resp && 'token' in resp && resp.token) {
       await StorageAdapter.setItem('accessToken', resp.token);
       await StorageAdapter.setItem('refreshToken', resp.refreshToken);
+      await StorageAdapter.setItem('userName', resp.user.fullName);
   
       // Verificación de la propiedad validated
       if (resp.user.validated === false) {

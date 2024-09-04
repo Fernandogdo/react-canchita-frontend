@@ -61,7 +61,7 @@ export const DashboardScreen = () => {
        <Layout style={styles.buttonContainer}>
         <Button
           style={styles.button}
-          onPress={onLogout}
+          onPress={() => navigation.navigate('ConfigurationScreen')}
           appearance='filled'
         >
           <MyIcon name="settings-2-outline" white size={32} />
