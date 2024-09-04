@@ -2,6 +2,7 @@ import axios from 'axios';
 import { tesloApi } from '../../config/api/tesloApi';
 import { User } from '../../domain/entities/user';
 import { AuthResponse } from '../../infrastructure/interfaces/auth.responses';
+import { Alert } from 'react-native';
 
 const returnUserToken = (data: any, isLogin: boolean) => {
   const user: User = {
@@ -58,8 +59,8 @@ export const authLogin = async (email: string, password: string) => {
 
     if (error.response) {
       const errorData = error.response.data;
-      if (errorData && errorData.detail) {
-        mensaje = errorData.detail;
+      if (errorData && errorData.error) {
+        mensaje = errorData.error??errorData.detail??"Error al iniciar sesión";
       } else {
         mensaje = "Error al iniciar sesión";
       }

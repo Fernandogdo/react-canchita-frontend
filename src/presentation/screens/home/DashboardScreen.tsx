@@ -6,7 +6,7 @@ import {RootStackParams} from '../../navigation/StackNavigator';
 import {FAB} from '../../components/ui/FAB';
 import {useAuthStore} from '../../store/auth/useAuthStore';
 import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
-
+import {MyIcon} from '../../components/ui/MyIcon';
 export const DashboardScreen = () => {
   const [selectedMarker, setSelectedMarker] = useState<{ latitude: number, longitude: number } | null>(null);
   const navigation = useNavigation<NavigationProp<RootStackParams>>();
@@ -49,7 +49,7 @@ export const DashboardScreen = () => {
         )}
       </MapView>
 
-      <FAB
+      {/* <FAB
         iconName="plus-outline"
         onPress={() => navigation.navigate('ProductScreen', {productId: 'new'})}
         style={styles.fab}
@@ -57,7 +57,31 @@ export const DashboardScreen = () => {
 
       <Button onPress={onLogout} style={styles.logoutButton}>
         Cerrar Sesión
-      </Button>
+      </Button> */}
+       <Layout style={styles.buttonContainer}>
+        <Button
+          style={styles.button}
+          onPress={onLogout}
+          appearance='filled'
+        >
+          <MyIcon name="settings-2-outline" white size={32} />
+        </Button>
+        <Button
+          style={styles.largeButton} // Aplica el estilo para el botón del medio
+          onPress={() => navigation.navigate('HomeScreen')}
+          appearance='filled'
+        >
+          <MyIcon name="home-outline" white size={50} />
+        </Button>
+        <Button
+          style={styles.button}
+          onPress={onLogout}
+          appearance='filled'
+        >
+          <MyIcon name="menu-outline" white size={32} />
+        </Button>
+      </Layout>
+
     </Layout>
   );
 };
@@ -68,17 +92,38 @@ const styles = StyleSheet.create({
   },
   map: {
     width: '100%',
-    height: '87.5%', // 3.5/4 de la pantalla
+    //height: '87.5%', // 3.5/4 de la pantalla
+    height: '100%',
   },
-  fab: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-  },
-  logoutButton: {
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     position: 'absolute',
     bottom: 20,
     left: 20,
+    right: 20,
+    backgroundColor:"transparent"
+  },
+  button: {
+    flex: 1,
+    marginHorizontal: 15,
+    backgroundColor: 'black',
+    borderColor: 'black',
+    height: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 12,
+    marginTop:12
+  },
+  largeButton: {
+    flex: 1,
+    marginHorizontal: 10,
+    backgroundColor: 'black',
+    borderColor: 'black',
+    height: 80, // Altura mayor para el botón del medio
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 12,
   },
 });
 

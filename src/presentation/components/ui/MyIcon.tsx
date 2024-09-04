@@ -6,9 +6,10 @@ interface Props {
   color?: string;
   white?: boolean;
   style?: StyleProp<ViewStyle>;  // Añade la propiedad style aquí
+  size?: number;  // Añade la propiedad size aquí
 }
 
-export const MyIcon = ({ name, color, white = false, style }: Props) => {
+export const MyIcon = ({ name, color, white = false, style,size = 30 }: Props) => {
   const theme = useTheme();
 
   if (white) {
@@ -19,12 +20,6 @@ export const MyIcon = ({ name, color, white = false, style }: Props) => {
     color = theme[color] ?? theme['text-basic-color'];
   }
 
-  return <Icon style={[styles.icon, style]} fill={color} name={name} />; // Aplica la propiedad style aquí
+  return <Icon style={[style,{ width: size, height: size }]} fill={color} name={name} />; // Aplica la propiedad style aquí
 };
 
-const styles = StyleSheet.create({
-  icon: {
-    width: 30,
-    height: 30,
-  },
-});
