@@ -3,16 +3,15 @@ import 'react-native-gesture-handler';
 
 // enableLatestRenderer();
 
-import {ApplicationProvider, IconRegistry} from '@ui-kitten/components';
+import { ApplicationProvider, IconRegistry } from '@ui-kitten/components';
 import * as eva from '@eva-design/eva';
-import {EvaIconsPack} from '@ui-kitten/eva-icons';
-import {NavigationContainer} from '@react-navigation/native';
-import {StackNavigator} from './presentation/navigation/StackNavigator';
-import {useColorScheme} from 'react-native';
-import {AuthProvider} from './presentation/providers/AuthProvider';
-import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
+import { EvaIconsPack } from '@ui-kitten/eva-icons';
+import { NavigationContainer } from '@react-navigation/native';
+import { StackNavigator } from './presentation/navigation/StackNavigator';
+import { useColorScheme } from 'react-native';
+import { AuthProvider } from './presentation/providers/AuthProvider';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import deepmerge from 'deepmerge';
-import { PermissionsChecker } from './presentation/providers/PermissionsChecker';
 
 const queryClient = new QueryClient();
 
@@ -51,9 +50,7 @@ export const CanchitaApp = () => {
             },
           }}>
           <AuthProvider>
-            <PermissionsChecker>
-              <StackNavigator />
-            </PermissionsChecker>
+            <StackNavigator />
           </AuthProvider>
         </NavigationContainer>
       </ApplicationProvider>

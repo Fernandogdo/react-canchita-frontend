@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import {StyleSheet} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {Alert, BackHandler, StyleSheet} from 'react-native';
 import {Layout, Text, Button} from '@ui-kitten/components';
 import {useNavigation, NavigationProp} from '@react-navigation/native';
 import {RootStackParams} from '../../navigation/StackNavigator';
@@ -8,20 +8,39 @@ import {useAuthStore} from '../../store/auth/useAuthStore';
 import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
 import {MyIcon} from '../../components/ui/MyIcon';
 export const DashboardScreen = () => {
-  const [selectedMarker, setSelectedMarker] = useState<{ latitude: number, longitude: number } | null>(null);
+  const [selectedMarker, setSelectedMarker] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
   const navigation = useNavigation<NavigationProp<RootStackParams>>();
-
-  const {logout} = useAuthStore();
+  const { logout } = useAuthStore();
 
   const onMapPress = (event: any) => {
-    const {latitude, longitude} = event.nativeEvent.coordinate;
-    setSelectedMarker({latitude, longitude});
+    const { latitude, longitude } = event.nativeEvent.coordinate;
+    setSelectedMarker({ latitude, longitude });
   };
 
   const onLogout = async () => {
     await logout();
     navigation.navigate('LoginScreen');
   };
+
+  useEffect(() => {
+    const backAction = () => {
+      Alert.alert('Salir', '¿Quieres salir de la aplicación?', [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Salir', onPress: () => BackHandler.exitApp() },
+      ]);
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, []);
 
   return (
     <Layout style={styles.container}>
@@ -51,7 +70,7 @@ export const DashboardScreen = () => {
 
       {/* <FAB
         iconName="plus-outline"
-        onPress={() => navigation.navigate('ProductScreen', {productId: 'new'})}
+        onPress={() => navigation.navigate('ProductScreen', { productId: 'new' })}
         style={styles.fab}
       />
 

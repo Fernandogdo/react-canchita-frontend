@@ -1,5 +1,5 @@
-import React, {useEffect, useState, useRef} from 'react';
-import {Button, Input, Layout, Text} from '@ui-kitten/components';
+import React, { useEffect, useState, useRef } from 'react';
+import { Button, Input, Layout, Text } from '@ui-kitten/components';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -8,21 +8,17 @@ import {
   View,
   Linking,
 } from 'react-native';
-import {StackScreenProps} from '@react-navigation/stack';
-import {styles} from '../styles';
+import { StackScreenProps } from '@react-navigation/stack';
+import { styles } from '../styles';
 import Toast from 'react-native-toast-message';
-import {MyIcon} from '../../components/ui/MyIcon';
-import {useEstablishmentStore} from '../../store/establishment/useEstablishmentStore';
-import {RootStackParams} from '../../navigation/StackNavigator';
-import {
-  getProvinces,
-  getCantonsByProvince,
-} from '../../../actions/provinces/get-provinces-cantons';
-import {Picker} from '@react-native-picker/picker';
-import {Province, Canton} from '../../../domain/entities/province';
-import {useDebounce} from 'use-debounce';
-import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
-import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
+import { MyIcon } from '../../components/ui/MyIcon';
+import { useEstablishmentStore } from '../../store/establishment/useEstablishmentStore';
+import { RootStackParams } from '../../navigation/StackNavigator';
+import { Picker } from '@react-native-picker/picker';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import axios from 'axios';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import CustomMapView from '../../components/maps/CustomMapView';
 
 interface Props
   extends StackScreenProps<
@@ -30,18 +26,42 @@ interface Props
     'EstablishmentRegisterScreenStep2'
   > {}
 
+const GOOGLE_API_KEY = 'AIzaSyDVE1zdOKRl0WUtdi5738Zi_lwoe1u6Psc'; //  clave de API de Google
+
+type AddressComponent = {
+  long_name: string;
+  short_name: string;
+  types: string[];
+};
+
+type FormType = {
+  establishmentName?: string;
+  description?: string;
+  ruc?: string;
+  address: string;
+  latitude: string;
+  longitude: string;
+  google_address: string;
+  province: string;
+  canton: string;
+  opening_time?: string;
+  closing_time?: string;
+};
+
 export const EstablishmentRegisterScreenStep2 = ({
   route,
   navigation,
 }: Props) => {
-  const {userId, email, form: initialForm} = route.params;
+  const { userId, email, form: initialForm } = route.params;
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<FormType>({
     ...initialForm,
-    address: '',
+    address: '', // Permitir que el usuario lo edite manualmente
     latitude: '',
     longitude: '',
     google_address: '',
+    province: '',
+    canton: '',
   });
 
   const [errors, setErrors] = useState({
@@ -49,71 +69,74 @@ export const EstablishmentRegisterScreenStep2 = ({
     latitude: '',
     longitude: '',
     google_address: '',
+    province: '',
+    canton: '',
   });
 
-  const [provinces, setProvinces] = useState<Province[]>([]);
-  const [cantons, setCantons] = useState<Canton[]>([]);
-  const [selectedProvince, setSelectedProvince] = useState<
-    number | undefined
-  >();
-  const [selectedCanton, setSelectedCanton] = useState<number | undefined>();
   const [selectedMarker, setSelectedMarker] = useState<{
     latitude: number;
     longitude: number;
   } | null>(null);
 
-  const {createEstablishment} = useEstablishmentStore();
-
+  const { createEstablishment } = useEstablishmentStore();
   const mapRef = useRef<MapView>(null);
 
-  useEffect(() => {
-    const fetchProvinces = async () => {
-      try {
-        const provincesData = await getProvinces();
-        setProvinces(provincesData);
-      } catch (error) {
-        Toast.show({
-          type: 'error',
-          text1: 'Error',
-          text2: 'No se pudieron cargar las provincias',
-        });
-      }
-    };
-
-    fetchProvinces();
-  }, []);
-
-  const [debouncedProvince] = useDebounce(selectedProvince, 300);
-
-  useEffect(() => {
-    const fetchCantons = async () => {
-      if (debouncedProvince) {
-        try {
-          const cantonsData = await getCantonsByProvince(debouncedProvince);
-          setCantons(cantonsData);
-          setSelectedCanton(undefined);
-        } catch (error) {
-          Toast.show({
-            type: 'error',
-            text1: 'Error',
-            text2: 'No se pudieron cargar los cantones',
-          });
-        }
-      }
-    };
-
-    fetchCantons();
-  }, [debouncedProvince]);
-
-  const onMapPress = (event: any) => {
-    const {latitude, longitude} = event.nativeEvent.coordinate;
-    setSelectedMarker({latitude, longitude});
+  const onMapPress = async (event: any) => {
+    const { latitude, longitude } = event.nativeEvent.coordinate;
+    setSelectedMarker({ latitude, longitude });
     setForm({
       ...form,
       latitude: latitude.toString(),
       longitude: longitude.toString(),
-      google_address: `https://www.google.com/maps/@${latitude},${longitude},17z`, // Aquí 17z es un nivel de zoom apropiado
+      google_address: `https://www.google.com/maps/@${latitude},${longitude},17z`,
     });
+
+    // Realizar la solicitud de Geocoding para obtener la provincia y cantón sin modificar el campo de dirección
+    try {
+      const response = await axios.get(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_API_KEY}`,
+      );
+
+      if (response.data.results.length > 0) {
+        const addressComponents = response.data.results[0].address_components;
+        let province = '';
+        let canton = '';
+
+        // Iterar sobre los componentes de la dirección para encontrar la provincia y el cantón
+        addressComponents.forEach((component: AddressComponent) => {
+          if (component.types.includes('administrative_area_level_1')) {
+            province = component.long_name;
+          } else if (component.types.includes('administrative_area_level_2')) {
+            canton = component.long_name;
+          }
+        });
+
+        setForm((prevForm: FormType) => ({
+          ...prevForm,
+          province,
+          canton,
+        }));
+
+        Toast.show({
+          type: 'success',
+          text1: 'Ubicación Obtenida',
+          text2: `Provincia: ${province}, Cantón: ${canton}`,
+        });
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: 'No se pudo obtener la dirección de esta ubicación.',
+        });
+      }
+    } catch (error) {
+      console.error('Error en Geocoding:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'No se pudo obtener la provincia y cantón.',
+      });
+    }
   };
 
   const validateFields = () => {
@@ -123,19 +146,24 @@ export const EstablishmentRegisterScreenStep2 = ({
       latitude: '',
       longitude: '',
       google_address: '',
+      province: '',
+      canton: '',
     };
 
-    if (form.address.length === 0) {
-      newErrors.address = 'La dirección es obligatoria';
+    if (!form.latitude || !form.longitude) {
+      newErrors.latitude = 'La latitud y longitud son obligatorias';
+      newErrors.longitude = 'La latitud y longitud son obligatorias';
       valid = false;
     }
 
-    if (!selectedCanton) {
-      Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: 'Debes seleccionar un cantón',
-      });
+    if (!form.province || !form.canton) {
+      newErrors.province = 'La provincia es obligatoria';
+      newErrors.canton = 'El cantón es obligatorio';
+      valid = false;
+    }
+
+    if (!form.address) {
+      newErrors.address = 'La dirección es obligatoria';
       valid = false;
     }
 
@@ -155,16 +183,16 @@ export const EstablishmentRegisterScreenStep2 = ({
 
     const establishment = {
       user_id: userId,
-      name: form.establishmentName,
-      description: form.description,
-      ruc: form.ruc,
-      canton_id: selectedCanton as number,
+      name: form.establishmentName || '',
+      description: form.description || '',
+      ruc: form.ruc || '',
+      canton_id: 1,
       address: form.address,
       latitude: form.latitude,
       longitude: form.longitude,
       google_address: form.google_address,
-      opening_time: form.opening_time,
-      closing_time: form.closing_time,
+      opening_time: form.opening_time || '09:00:00',
+      closing_time: form.closing_time || '22:00:00',
     };
 
     const wasSuccessful = await createEstablishment(establishment);
@@ -184,11 +212,11 @@ export const EstablishmentRegisterScreenStep2 = ({
 
   return (
     <KeyboardAvoidingView
-      style={{flex: 1}}
+      style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <Layout style={styles.containerCentered}>
         <View style={styles.scrollViewContent}>
-          <Layout style={[styles.fondoPrincipal, {paddingBottom: 10}]}>
+          <Layout style={[styles.fondoPrincipal, { paddingBottom: 10 }]}>
             <Text style={styles.textoBase} category="h4">
               Completa los Datos del Establecimiento
             </Text>
@@ -197,21 +225,21 @@ export const EstablishmentRegisterScreenStep2 = ({
             </Text>
           </Layout>
 
-          {/* Campo de búsqueda de Google Places */}
           <GooglePlacesAutocomplete
             placeholder="Buscar lugar"
             onPress={(data, details = null) => {
               if (details && details.geometry) {
-                const {lat, lng} = details.geometry.location;
-                setSelectedMarker({latitude: lat, longitude: lng});
+                const { lat, lng } = details.geometry.location;
+                setSelectedMarker({ latitude: lat, longitude: lng });
                 setForm({
                   ...form,
                   latitude: lat.toString(),
                   longitude: lng.toString(),
                   google_address: `https://www.google.com/maps/@${lat},${lng},17z`,
+                  // Remover autocompletado de dirección
                 });
 
-                // Mueve elmapa a la nueva ubicación
+                // Mueve el mapa a la nueva ubicación
                 mapRef.current?.animateCamera({
                   center: {
                     latitude: lat,
@@ -222,7 +250,7 @@ export const EstablishmentRegisterScreenStep2 = ({
               }
             }}
             query={{
-              key: 'AIzaSyDVE1zdOKRl0WUtdi5738Zi_lwoe1u6Psc',
+              key: GOOGLE_API_KEY,
               language: 'es',
             }}
             fetchDetails={true}
@@ -233,20 +261,20 @@ export const EstablishmentRegisterScreenStep2 = ({
                 width: '100%',
               },
               textInputContainer: {
-                backgroundColor: '#282626', // Color de fondo 
+                backgroundColor: '#282626',
                 borderTopWidth: 0,
                 borderBottomWidth: 0,
                 marginVertical: 10,
                 marginHorizontal: 9,
                 borderRadius: 20,
-                borderColor: '#fff', // Borde blanco inputs
+                borderColor: '#fff',
               },
               textInput: {
                 height: 40,
-                color: 'white', // Asegura que el texto sea visible
+                color: 'white',
                 fontSize: 16,
                 paddingHorizontal: 10,
-                backgroundColor: '#282626', // Fondo oscuro
+                backgroundColor: '#282626',
               },
               listView: {
                 backgroundColor: 'white',
@@ -254,115 +282,33 @@ export const EstablishmentRegisterScreenStep2 = ({
                 marginHorizontal: 9,
               },
               description: {
-                color: '#7f7c7c', // Color de texto para las sugerencias
+                color: '#7f7c7c',
               },
             }}
           />
 
-          <MapView
-            ref={mapRef}
-            provider={PROVIDER_GOOGLE}
-            style={{height: 400, marginVertical: 20}}
-            region={{
-              latitude: selectedMarker ? selectedMarker.latitude : -2.897095,
-              longitude: selectedMarker ? selectedMarker.longitude : -79.021482,
-              latitudeDelta: 0.015,
-              longitudeDelta: 0.0121,
-            }}
-            zoomEnabled={true}
-            scrollEnabled={true}
-            showsUserLocation={true}
-            followsUserLocation={true}
-            onPress={onMapPress}>
-            {selectedMarker && (
-              <Marker
-                coordinate={selectedMarker}
-                title="Ubicación seleccionada"
-                description="Presiona para ajustar"
-              />
-            )}
-          </MapView>
+          <CustomMapView
+            initialLatitude={-2.897095}
+            initialLongitude={-79.021482}
+            selectedMarker={selectedMarker}
+            onMapPress={onMapPress}
+            mapHeight="45%"
+          />
 
-          <Layout style={[styles.fondoPrincipal, {marginTop: 20}]}>
-            <View
-              style={[
-                styles.input,
-                {
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  marginVertical: 5,
-                  marginHorizontal: 9,
-                  height: 40,
-                },
-              ]}>
-              <MyIcon name="map-outline" style={{marginLeft: 6}} white />
-              <Picker
-                selectedValue={selectedProvince}
-                onValueChange={itemValue => setSelectedProvince(itemValue)}
-                style={{color: '#7f7c7c', flex: 1}}
-                dropdownIconColor="white">
-                <Picker.Item
-                  label="Selecciona una provincia"
-                  value={undefined}
-                  color="#a4a4a4"
-                />
-                {provinces.map(province => (
-                  <Picker.Item
-                    key={province.id}
-                    label={province.description}
-                    value={province.id}
-                    color="#a4a4a4"
-                  />
-                ))}
-              </Picker>
-            </View>
-
-            <View
-              style={[
-                styles.input,
-                {
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  marginVertical: 5,
-                  marginHorizontal: 9,
-                  height: 40,
-                },
-              ]}>
-              <MyIcon name="map-outline" style={{marginLeft: 6}} white />
-              <Picker
-                selectedValue={selectedCanton}
-                onValueChange={itemValue => setSelectedCanton(itemValue)}
-                style={{color: '#7f7c7c', flex: 1}}
-                dropdownIconColor="white">
-                <Picker.Item
-                  label="Selecciona un cantón"
-                  value={undefined}
-                  color="#a4a4a4"
-                />
-                {cantons.map(canton => (
-                  <Picker.Item
-                    key={canton.id}
-                    label={canton.description}
-                    value={canton.id}
-                    color="#a4a4a4"
-                  />
-                ))}
-              </Picker>
-            </View>
-
+          <Layout style={[styles.fondoPrincipal, { marginTop: 20 }]}>
             <Input
               placeholder="Dirección"
               accessoryLeft={<MyIcon name="pin-outline" white />}
               value={form.address}
-              onChangeText={address => setForm({...form, address})}
+              onChangeText={address => setForm({ ...form, address })}
               status={errors.address ? 'danger' : 'basic'}
               caption={errors.address}
               style={[styles.input, errors.address ? styles.inputError : null]}
-              textStyle={{color: styles.input.color}}
+              textStyle={{ color: styles.input.color }}
             />
           </Layout>
 
-          <Layout style={[styles.fondoPrincipal, {height: 15}]} />
+          <Layout style={[styles.fondoPrincipal, { height: 15 }]} />
 
           <Layout style={styles.fondoPrincipal}>
             <TouchableOpacity
@@ -377,7 +323,7 @@ export const EstablishmentRegisterScreenStep2 = ({
                 flexDirection: 'row',
               }}>
               <MyIcon name="checkmark-circle-2-outline" white />
-              <Text style={{color: 'white', marginLeft: 10}}>
+              <Text style={{ color: 'white', marginLeft: 10 }}>
                 Registrar Establecimiento
               </Text>
             </TouchableOpacity>

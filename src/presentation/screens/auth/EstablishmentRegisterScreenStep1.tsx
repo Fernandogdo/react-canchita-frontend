@@ -29,6 +29,22 @@ export const EstablishmentRegisterScreenStep1 = ({ route, navigation }: Props) =
     closing_time: '',
   });
 
+  // Función para convertir la hora en minutos desde la medianoche
+  const convertTimeToMinutes = (time: string) => {
+    const [hours, minutes] = time.split(':').map(Number);
+    return hours * 60 + minutes;
+  };
+
+  // Función para validar que la hora de cierre sea mayor que la de apertura
+  const validateTime = (opening_time: string, closing_time: string) => {
+    if (opening_time && closing_time) {
+      const openingMinutes = convertTimeToMinutes(opening_time);
+      const closingMinutes = convertTimeToMinutes(closing_time);
+      return closingMinutes > openingMinutes;
+    }
+    return true; // Si uno de los tiempos no está definido, no realizar validación
+  };
+
   const validateFields = () => {
     let valid = true;
     const newErrors = {
@@ -61,6 +77,12 @@ export const EstablishmentRegisterScreenStep1 = ({ route, navigation }: Props) =
 
     if (form.closing_time.length === 0) {
       newErrors.closing_time = 'La hora de cierre es obligatoria';
+      valid = false;
+    }
+
+    // Validar que la hora de cierre sea mayor a la de apertura
+    if (!validateTime(form.opening_time, form.closing_time)) {
+      newErrors.closing_time = 'La hora de cierre debe ser mayor que la de apertura';
       valid = false;
     }
 
@@ -134,7 +156,14 @@ export const EstablishmentRegisterScreenStep1 = ({ route, navigation }: Props) =
               label="Hora de Apertura"
               placeholder="Selecciona la hora"
               value={form.opening_time}
-              onChange={(time) => setForm({ ...form, opening_time: time })}
+              onChange={(time) => {
+                setForm({ ...form, opening_time: time });
+                if (!validateTime(time, form.closing_time)) {
+                  setErrors({ ...errors, closing_time: 'La hora de cierre debe ser mayor que la de apertura' });
+                } else {
+                  setErrors({ ...errors, closing_time: '' });
+                }
+              }}
               error={errors.opening_time}
               style={[styles.input, errors.opening_time ? styles.inputError : null]}
             />
@@ -143,7 +172,14 @@ export const EstablishmentRegisterScreenStep1 = ({ route, navigation }: Props) =
               label="Hora de Cierre"
               placeholder="Selecciona la hora"
               value={form.closing_time}
-              onChange={(time) => setForm({ ...form, closing_time: time })}
+              onChange={(time) => {
+                setForm({ ...form, closing_time: time });
+                if (!validateTime(form.opening_time, time)) {
+                  setErrors({ ...errors, closing_time: 'La hora de cierre debe ser mayor que la de apertura' });
+                } else {
+                  setErrors({ ...errors, closing_time: '' });
+                }
+              }}
               error={errors.closing_time}
               style={[styles.input, errors.closing_time ? styles.inputError : null]}
             />

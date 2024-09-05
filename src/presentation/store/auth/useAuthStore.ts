@@ -148,20 +148,21 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   checkStatus: async () => {
     const accessToken = await StorageAdapter.getItem('accessToken');
     const refreshToken = await StorageAdapter.getItem('refreshToken');
+
     if (!accessToken) {
       set({ status: 'unauthenticated', accessToken: undefined, refreshToken: undefined, user: undefined });
       return;
     }
 
     const resp = await authCheckStatus();
-    if (!resp) {
+    if (resp && resp.token) {
+      await StorageAdapter.setItem('accessToken', resp.token);
+      set({ status: 'authenticated', accessToken: resp.token, user: resp.user });
+    } else {
       set({ status: 'unauthenticated', accessToken: undefined, refreshToken: undefined, user: undefined });
-      return;
     }
-
-    await StorageAdapter.setItem('accessToken', resp.token);
-    set({ status: 'authenticated', accessToken: resp.token, user: resp.user });
   },
+  
   sendResetOtp: async (email: string) => {
     const otpResponse = await sendOTP(email);
     if (!otpResponse.success) {
