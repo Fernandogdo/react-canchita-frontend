@@ -74,7 +74,7 @@ export const ConfigurationScreen = () => {
             {/* Menú con cuatro botones */}
             <Layout style={styles.containButton} >
             <MyIcon name="arrow-forward-outline" />
-            <Text  onPress={onLogout} style={styles.menuText}>Configuraciones</Text>
+            <Text   onPress={() => navigation.navigate('EstablishmentDetailScreen',{establishmentId:"1"})}style={styles.menuText}>Configuraciones</Text>
             <MyIcon name="arrow-forward-outline" />
             </Layout>
            
@@ -176,10 +176,10 @@ const styles = StyleSheet.create({
     
   },
   menuText:{
-    marginRight:55,
+    marginRight:25,
     marginLeft:25,
     fontSize:20,
-    marginBottom:25
+   
   }
 });
 

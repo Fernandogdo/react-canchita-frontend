@@ -13,4 +13,7 @@ export interface Establishment {
   user_id?: number;
   validated?: boolean;
   isActive?: boolean;
+  qualification?:number;
+  main_image?:string;
+  images_courts:[];
 }

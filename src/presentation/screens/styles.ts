@@ -92,4 +92,9 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 10,
   },
+  buttonBlack: {
+    backgroundColor: '#000000',
+    borderColor: '#000000',
+    borderRadius: 10,
+  },
 });
