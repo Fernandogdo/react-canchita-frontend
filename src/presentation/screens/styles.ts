@@ -96,5 +96,8 @@ export const styles = StyleSheet.create({
     backgroundColor: '#000000',
     borderColor: '#000000',
     borderRadius: 10,
+    paddingVertical:5,
+    paddingHorizontal:3,
+    marginRight:5
   },
 });

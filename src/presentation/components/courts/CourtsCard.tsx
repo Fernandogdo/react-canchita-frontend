@@ -36,13 +36,29 @@ const establishments = [
     tarifa: "25/hora",
     images: [
       require('../../../assets/no-product-image.png'),
+      require('../../../assets/no-product-image.png'),
+      require('../../../assets/no-product-image.png'),
+    ],
+  },
+  {
+    id: '3',
+    name: 'Cancha 3',
+    description: 'Descripción de Cancha 3',
+    latitude: -0.190653,
+    longitude: -78.477834,
+    image: '../../../assets/no-product-image.png',
+    tarifa: "25/hora",
+    images: [
+      require('../../../assets/no-product-image.png'),
+      require('../../../assets/no-product-image.png'),
+      require('../../../assets/no-product-image.png'),
     ],
   },
 ];
 
-interface Props extends StackScreenProps<RootStackParams, 'EstablishmentDetailScreen'> {}
+interface Props extends StackScreenProps<RootStackParams, 'CourtsCard'> {}
 
-export const EstablishmentDetailScreen = ({ route }: Props) => {
+export const CourtsCard = ({ route }: Props) => {
   const { establishmentId } = route.params;
   const { top } = useSafeAreaInsets();
   
@@ -76,14 +92,7 @@ export const EstablishmentDetailScreen = ({ route }: Props) => {
   }
 
   return (
-    <Layout style={{ paddingTop: top }}>
-      <TopNavigation
-        title={""}
-        subtitle={""}
-        alignment="center"
-        accessoryLeft={canGoBack() ? renderBackAction : undefined}
-        accessoryRight={renderActionButton}
-      />
+    <Layout>
       <ScrollView contentContainerStyle={styles2.container}>
         <View style={styles2.innerContainer}>
           <View style={styles2.textContainer}>
@@ -107,17 +116,6 @@ export const EstablishmentDetailScreen = ({ route }: Props) => {
             <Image key={index} source={image} style={styles2.carouselImage} resizeMode="cover" />
           ))}
         </Swiper>
-
-        <View style={styles2.textContainer}>
-          <Text style={styles2.title} category="h1">
-            Descripción
-          </Text>
-          <ScrollView style={styles2.scrollContainer}>
-            <Text style={styles2.secondaryText}>
-              {establishment.des}
-            </Text>
-          </ScrollView>
-        </View>
       </ScrollView>
     </Layout>
   );
@@ -130,7 +128,6 @@ const styles2 = StyleSheet.create({
     borderColor: 'gray', // Color del borde
     borderWidth: 1, // Ancho del borde
     borderRadius: 5, // Esquinas redondeadas (opcional)
-   margin:10
   },
   innerContainer: {
     flexDirection: 'row',
