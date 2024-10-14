@@ -130,7 +130,8 @@ const styles2 = StyleSheet.create({
     borderColor: 'gray', // Color del borde
     borderWidth: 1, // Ancho del borde
     borderRadius: 5, // Esquinas redondeadas (opcional)
-   margin:10
+   margin:10,
+   height:"90%"
   },
   innerContainer: {
     flexDirection: 'row',
@@ -142,7 +143,7 @@ const styles2 = StyleSheet.create({
     marginRight: 10,
   },
   title: {
-    fontSize: 24,
+    fontSize: 35,
     fontWeight: 'bold',
   },
   image: {
@@ -150,20 +151,20 @@ const styles2 = StyleSheet.create({
     height: 100,
   },
   secondaryText: {
-    fontSize: 15,
+    fontSize: 20,
     color: 'gray',
   },
   carousel: {
-    height: 200,
+    height: 220,
     marginTop:20,
     marginBottom:10
   },
   carouselImage: {
     width: '100%',
-    height: 200,
+    height: 220,
   },
   scrollContainer: {
-    maxHeight: 250, // Altura máxima para el ScrollView
+    //maxHeight: 250, // Altura máxima para el ScrollView
    
   },
 });

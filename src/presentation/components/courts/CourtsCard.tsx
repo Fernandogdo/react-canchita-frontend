@@ -6,7 +6,7 @@ import { Image, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { MyIcon } from '../../components/ui/MyIcon';
-import { styles } from '../styles';
+//import {styles} from '../src/presentation/screens/styles'; // Importa los estilos
 import StarRating from '../../components/establishments/StarRating';
 import Swiper from 'react-native-swiper';
 
@@ -76,7 +76,7 @@ export const CourtsCard = ({ route }: Props) => {
   const renderActionButton = () => (
     <Button
       onPress={goBack}
-      style={styles.buttonBlack}
+     // style={styles.buttonBlack}
       accessoryRight={<MyIcon name="arrow-forward-outline" white />}
     >
       <Text>Ver canchas</Text>
