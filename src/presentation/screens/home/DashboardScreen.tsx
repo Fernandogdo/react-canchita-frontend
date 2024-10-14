@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   Alert,
   BackHandler,
@@ -7,14 +7,14 @@ import {
   Modal,
   TouchableOpacity,
 } from 'react-native';
-import { Layout, Text, Button, Input } from '@ui-kitten/components';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { RootStackParams } from '../../navigation/StackNavigator';
-import { useAuthStore } from '../../store/auth/useAuthStore';
-import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
+import {Layout, Text, Button, Input} from '@ui-kitten/components';
+import {useNavigation, NavigationProp} from '@react-navigation/native';
+import {RootStackParams} from '../../navigation/StackNavigator';
+import {useAuthStore} from '../../store/auth/useAuthStore';
+import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
 import Slider from '@react-native-community/slider'; // Importamos el slider
-import { MyIcon } from '../../components/ui/MyIcon';
-import { Calendar, DateData } from 'react-native-calendars'; // Importamos el calendario
+import {MyIcon} from '../../components/ui/MyIcon';
+import {Calendar, DateData} from 'react-native-calendars'; // Importamos el calendario
 import DateTimePickerModal from 'react-native-modal-datetime-picker'; // Importamos el DateTimePicker
 
 // Este es tu arreglo de ubicaciones con las coordenadas
@@ -81,25 +81,27 @@ export const DashboardScreen = () => {
     minPrice: 10,
     maxPrice: 310,
     selectedSport: null as string | null,
-    selectedDates: {} as Record<string, { selected: boolean; marked: boolean }>,
+    selectedDates: {} as Record<string, {selected: boolean; marked: boolean}>,
     startTime: null as string | null,
     endTime: null as string | null,
   });
 
-  const [markedDates, setMarkedDates] = useState<Record<string, { selected: boolean; marked: boolean }>>({});
+  const [markedDates, setMarkedDates] = useState<
+    Record<string, {selected: boolean; marked: boolean}>
+  >({});
   const [isStartTimePickerVisible, setStartTimePickerVisible] = useState(false);
   const [isEndTimePickerVisible, setEndTimePickerVisible] = useState(false);
 
   const navigation = useNavigation<NavigationProp<RootStackParams>>();
-  const { logout } = useAuthStore();
+  const {logout} = useAuthStore();
 
   // Deportes con íconos
   const sports = [
-    { name: 'Fútbol', icon: 'award-outline' },
-    { name: 'Básquetbol', icon: 'radio-outline' },
-    { name: 'Tenis', icon: 'activity-outline' },
-    { name: 'Natación', icon: 'droplet-outline' },
-    { name: 'Ciclismo', icon: 'car-outline' },
+    {name: 'Fútbol', icon: 'award-outline'},
+    {name: 'Básquetbol', icon: 'radio-outline'},
+    {name: 'Tenis', icon: 'activity-outline'},
+    {name: 'Natación', icon: 'droplet-outline'},
+    {name: 'Ciclismo', icon: 'car-outline'},
   ];
 
   // Mostrar los modales de selección de tiempo
@@ -107,9 +109,12 @@ export const DashboardScreen = () => {
   const hideStartTimePicker = () => setStartTimePickerVisible(false);
 
   const handleStartTimeConfirm = (time: Date) => {
-    setFilters((prev) => ({
+    setFilters(prev => ({
       ...prev,
-      startTime: time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      startTime: time.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
     }));
     hideStartTimePicker();
   };
@@ -118,27 +123,30 @@ export const DashboardScreen = () => {
   const hideEndTimePicker = () => setEndTimePickerVisible(false);
 
   const handleEndTimeConfirm = (time: Date) => {
-    setFilters((prev) => ({
+    setFilters(prev => ({
       ...prev,
-      endTime: time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      endTime: time.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
     }));
     hideEndTimePicker();
   };
 
   const handleDayPress = (day: DateData) => {
-    const newMarkedDates = { ...markedDates };
+    const newMarkedDates = {...markedDates};
     if (newMarkedDates[day.dateString]) {
       delete newMarkedDates[day.dateString];
     } else {
-      newMarkedDates[day.dateString] = { selected: true, marked: true };
+      newMarkedDates[day.dateString] = {selected: true, marked: true};
     }
     setMarkedDates(newMarkedDates);
-    setFilters((prev) => ({ ...prev, selectedDates: newMarkedDates }));
+    setFilters(prev => ({...prev, selectedDates: newMarkedDates}));
   };
 
   const onMapPress = (event: any) => {
-    const { latitude, longitude } = event.nativeEvent.coordinate;
-    setSelectedMarker({ latitude, longitude });
+    const {latitude, longitude} = event.nativeEvent.coordinate;
+    setSelectedMarker({latitude, longitude});
   };
 
   const onLogout = async () => {
@@ -153,32 +161,31 @@ export const DashboardScreen = () => {
 
   // Función para aplicar todos los filtros al servidor
   const applyAllFilters = async () => {
-    // Muestra los filtros en la consola antes de enviarlos
     console.log('Filtros aplicados:', filters);
   };
 
   // Validar que el precio mínimo no sea mayor que el máximo
   const handleMinPriceChange = (value: number) => {
-    setFilters((prev) => ({
+    setFilters(prev => ({
       ...prev,
       minPrice: value,
-      maxPrice: value > prev.maxPrice ? value : prev.maxPrice, // Asegura que el precio máximo no sea menor
+      maxPrice: value > prev.maxPrice ? value : prev.maxPrice,
     }));
   };
 
   const handleMaxPriceChange = (value: number) => {
-    setFilters((prev) => ({
+    setFilters(prev => ({
       ...prev,
       maxPrice: value,
-      minPrice: value < prev.minPrice ? value : prev.minPrice, // Asegura que el precio mínimo no sea mayor
+      minPrice: value < prev.minPrice ? value : prev.minPrice,
     }));
   };
 
   useEffect(() => {
     const backAction = () => {
       Alert.alert('Salir', '¿Quieres salir de la aplicación?', [
-        { text: 'Cancelar', style: 'cancel' },
-        { text: 'Salir', onPress: () => BackHandler.exitApp() },
+        {text: 'Cancelar', style: 'cancel'},
+        {text: 'Salir', onPress: () => BackHandler.exitApp()},
       ]);
       return true;
     };
@@ -193,41 +200,41 @@ export const DashboardScreen = () => {
 
   return (
     <Layout style={styles.container}>
-      {/* Buscador */}
-      <Input
-        style={styles.searchInput}
-        placeholder="Buscar aquí"
-        accessoryRight={<MyIcon name="search-outline" color="black" />}
-        textStyle={{ color: 'black' }}
-        placeholderTextColor="#A9A9A9"
-      />
+      {/* Buscador, tabs y botón flotando sobre el mapa */}
+      <Layout style={styles.floatingContainer}>
+        {/* Buscador */}
+        <Input
+          style={styles.searchInput}
+          placeholder="Buscar aquí"
+          accessoryRight={<MyIcon name="search-outline" color="black" />}
+          textStyle={{color: 'black'}}
+          placeholderTextColor="#A9A9A9"
+        />
 
-      {/* Tabs para filtros */}
-      <Layout style={styles.tabContainer}>
-        <Button
-          style={styles.filterButton}
-          onPress={() => openFilterModal('Precio')}
-          appearance="ghost">
-          <Text style={styles.filterText}>Precio $</Text>
-        </Button>
-        <Button
-          style={styles.filterButton}
-          onPress={() => openFilterModal('Deporte')}
-          appearance="ghost">
-          <Text style={styles.filterText}>Deporte</Text>
-        </Button>
-        <Button
-          style={styles.filterButton}
-          onPress={() => openFilterModal('Disponibilidad')}
-          appearance="ghost">
-          <Text style={styles.filterText}>Disponibilidad</Text>
+        {/* Tabs para filtros */}
+        <Layout style={styles.tabContainer}>
+          <TouchableOpacity
+            style={styles.customButton}
+            onPress={() => openFilterModal('Precio')}>
+            <Text style={styles.customButtonText}>Precio $</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.customButton}
+            onPress={() => openFilterModal('Deporte')}>
+            <Text style={styles.customButtonText}>Deporte</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.customButton}
+            onPress={() => openFilterModal('Disponibilidad')}>
+            <Text style={styles.customButtonText}>Disponibilidad</Text>
+          </TouchableOpacity>
+        </Layout>
+
+        {/* Botón para aplicar todos los filtros */}
+        <Button onPress={applyAllFilters} style={styles.applyAllButton}>
+          Aplicar Filtros
         </Button>
       </Layout>
-
-      {/* Botón para aplicar todos los filtros */}
-      <Button onPress={applyAllFilters} style={styles.applyAllButton}>
-        Aplicar Filtros
-      </Button>
 
       {/* Mapa */}
       <MapView
@@ -287,8 +294,12 @@ export const DashboardScreen = () => {
 
             {filterType === 'Precio' && (
               <View style={styles.priceFilterContainer}>
-                <Text style={styles.priceText}>Precio mínimo: ${filters.minPrice}</Text>
-                <Text style={styles.priceText}>Precio máximo: ${filters.maxPrice}</Text>
+                <Text style={styles.priceText}>
+                  Precio mínimo: ${filters.minPrice}
+                </Text>
+                <Text style={styles.priceText}>
+                  Precio máximo: ${filters.maxPrice}
+                </Text>
 
                 <Slider
                   style={styles.slider}
@@ -296,7 +307,7 @@ export const DashboardScreen = () => {
                   maximumValue={310}
                   step={1}
                   value={filters.minPrice}
-                  onValueChange={(value) => handleMinPriceChange(value)} // Cambia esto para manejar el cambio del precio mínimo
+                  onValueChange={value => handleMinPriceChange(value)}
                   minimumTrackTintColor="#1AC71A"
                   maximumTrackTintColor="#000000"
                 />
@@ -307,7 +318,7 @@ export const DashboardScreen = () => {
                   maximumValue={310}
                   step={1}
                   value={filters.maxPrice}
-                  onValueChange={(value) => handleMaxPriceChange(value)} // Cambia esto para manejar el cambio del precio máximo
+                  onValueChange={value => handleMaxPriceChange(value)}
                   minimumTrackTintColor="#1AC71A"
                   maximumTrackTintColor="#000000"
                 />
@@ -320,7 +331,9 @@ export const DashboardScreen = () => {
                   <TouchableOpacity
                     key={index}
                     style={styles.sportItem}
-                    onPress={() => setFilters((prev) => ({ ...prev, selectedSport: sport.name }))}>
+                    onPress={() =>
+                      setFilters(prev => ({...prev, selectedSport: sport.name}))
+                    }>
                     <MyIcon name={sport.icon} size={30} color="black" />
                     <Text style={styles.sportText}>{sport.name}</Text>
                   </TouchableOpacity>
@@ -414,65 +427,55 @@ const styles = StyleSheet.create({
     flex: 1,
     position: 'relative',
   },
+  floatingContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)', // Fondo más transparente
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    zIndex: 1000, // Asegura que esté por encima del mapa
+  },
   searchInput: {
-    marginHorizontal: 20,
-    marginVertical: 10,
     borderRadius: 12,
     backgroundColor: '#FFFFFF',
+    marginBottom: 10,
   },
   tabContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginHorizontal: 20,
-    marginVertical: 10,
     backgroundColor: '#FFFFFF',
     paddingVertical: 10,
     borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
   },
   filterButton: {
     backgroundColor: '#FFFFFF',
     borderColor: '#FFFFFF',
   },
-  filterText: {
-    color: '#1AC71A',
+  customButton: {
+    backgroundColor: '#FFFFFF',
+    padding: 10,
+    borderRadius: 10,
+    borderColor: '#FFFFFF',
+    borderWidth: 1,
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  customButtonText: {
+    color: '#1AC71A', // El verde que quieres
+    fontWeight: 'bold',
+  },
+  applyAllButton: {
+    marginTop: 10,
+    backgroundColor: '#000000',
+    borderRadius: 20,
+    borderColor: '#000000',
   },
   map: {
     flex: 1,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    right: 20,
-    backgroundColor: 'transparent',
-  },
-  button: {
-    flex: 1,
-    marginHorizontal: 15,
-    backgroundColor: 'black',
-    borderColor: 'black',
-    height: 60,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 12,
-    marginTop: 12,
-  },
-  largeButton: {
-    flex: 1,
-    marginHorizontal: 10,
-    backgroundColor: 'black',
-    borderColor: 'black',
-    height: 80,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 12,
   },
   modalContainer: {
     flex: 1,
@@ -541,11 +544,35 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginTop: 10,
   },
-  applyAllButton: {
-    margin: 20,
-    backgroundColor: '#000000', // Color negro
-    borderRadius: 20,
-    borderColor: '#000000', // Borde negro opcional
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    right: 20,
+    backgroundColor: 'transparent',
+  },
+  button: {
+    flex: 1,
+    marginHorizontal: 15,
+    backgroundColor: 'black',
+    borderColor: 'black',
+    height: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 12,
+    marginTop: 12,
+  },
+  largeButton: {
+    flex: 1,
+    marginHorizontal: 10,
+    backgroundColor: 'black',
+    borderColor: 'black',
+    height: 80,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 12,
   },
 });
 

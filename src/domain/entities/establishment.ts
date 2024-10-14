@@ -3,7 +3,6 @@ export interface Establishment {
   name: string;
   description: string;
   ruc: string;
-  canton_id: number;
   address: string;
   latitude: string;
   longitude: string;
@@ -13,7 +12,9 @@ export interface Establishment {
   user_id?: number;
   validated?: boolean;
   isActive?: boolean;
-  qualification?:number;
-  main_image?:string;
-  images_courts:[];
+  qualification?: number;
+  main_image?: string;
+  images_courts?: []; // Cambiar a opcional
+  province: string; // Añadir provincia
+  canton: string;   // Añadir canton
 }
