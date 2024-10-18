@@ -16,59 +16,61 @@ import Slider from '@react-native-community/slider'; // Importamos el slider
 import {MyIcon} from '../../components/ui/MyIcon';
 import {Calendar, DateData} from 'react-native-calendars'; // Importamos el calendario
 import DateTimePickerModal from 'react-native-modal-datetime-picker'; // Importamos el DateTimePicker
+import {useEstablishmentStore} from '../../store/establishment/useEstablishmentStore';
 
-// Este es tu arreglo de ubicaciones con las coordenadas
-const locations = [
-  {
-    user_id: 2,
-    name: 'Los peluches2',
-    description:
-      'Cancha de uso múltiple con techo, tiene de basket y fútbol sintética y también disponible de pádel',
-    latitude: -2.900456,
-    longitude: -79.004563,
-  },
-  {
-    user_id: 3,
-    name: 'Complejo Deportivo Cuenca',
-    description:
-      'Cancha sintética para fútbol, basket, y otros deportes al aire libre',
-    latitude: -2.902341,
-    longitude: -79.005312,
-  },
-  {
-    user_id: 4,
-    name: 'Deportes Cuenca',
-    description:
-      'Espacio deportivo con acceso a cancha de fútbol sintética y área de entrenamiento',
-    latitude: -2.901245,
-    longitude: -79.006891,
-  },
-  {
-    user_id: 5,
-    name: 'Centro Deportivo Miraflores',
-    description: 'Centro deportivo con cancha sintética y gimnasio',
-    latitude: -2.899854,
-    longitude: -79.008134,
-  },
-  {
-    user_id: 6,
-    name: 'Club Deportivo El Ejido',
-    description:
-      'Cancha de fútbol sintética con iluminación nocturna y servicios adicionales',
-    latitude: -2.902567,
-    longitude: -79.003689,
-  },
-  {
-    user_id: 7,
-    name: 'Parque La Madre',
-    description:
-      'Área recreativa con cancha sintética de fútbol y zona de juegos',
-    latitude: -2.899731,
-    longitude: -79.007456,
-  },
-];
+// Arreglo de ubicaciones con las coordenadas
+// const locations = [
+//   {
+//     user_id: 2,
+//     name: 'Los peluches2',
+//     description:
+//       'Cancha de uso múltiple con techo, tiene de basket y fútbol sintética y también disponible de pádel',
+//     latitude: -2.900456,
+//     longitude: -79.004563,
+//   },
+//   {
+//     user_id: 3,
+//     name: 'Complejo Deportivo Cuenca',
+//     description:
+//       'Cancha sintética para fútbol, basket, y otros deportes al aire libre',
+//     latitude: -2.902341,
+//     longitude: -79.005312,
+//   },
+//   {
+//     user_id: 4,
+//     name: 'Deportes Cuenca',
+//     description:
+//       'Espacio deportivo con acceso a cancha de fútbol sintética y área de entrenamiento',
+//     latitude: -2.901245,
+//     longitude: -79.006891,
+//   },
+//   {
+//     user_id: 5,
+//     name: 'Centro Deportivo Miraflores',
+//     description: 'Centro deportivo con cancha sintética y gimnasio',
+//     latitude: -2.899854,
+//     longitude: -79.008134,
+//   },
+//   {
+//     user_id: 6,
+//     name: 'Club Deportivo El Ejido',
+//     description:
+//       'Cancha de fútbol sintética con iluminación nocturna y servicios adicionales',
+//     latitude: -2.902567,
+//     longitude: -79.003689,
+//   },
+//   {
+//     user_id: 7,
+//     name: 'Parque La Madre',
+//     description:
+//       'Área recreativa con cancha sintética de fútbol y zona de juegos',
+//     latitude: -2.899731,
+//     longitude: -79.007456,
+//   },
+// ];
 
 export const DashboardScreen = () => {
+  const {fetchEstablishments, establishments} = useEstablishmentStore();
   const [selectedMarker, setSelectedMarker] = useState<{
     latitude: number;
     longitude: number;
@@ -103,6 +105,21 @@ export const DashboardScreen = () => {
     {name: 'Natación', icon: 'droplet-outline'},
     {name: 'Ciclismo', icon: 'car-outline'},
   ];
+
+  //Obtiene todos los establecimientos
+  useEffect(() => {
+    const fetchData = async () => {
+      await fetchEstablishments();
+      console.log('Los establecimientos se han cargado');
+    };
+
+    fetchData(); // Llamar solo una vez al montar el componente
+  }, [fetchEstablishments]); // Solo se ejecuta al montar o si `fetchEstablishments` cambia
+
+  useEffect(() => {
+    // solo se ejecuta cuando `establishments` cambia
+    console.log('Establecimientos actualizados:', establishments);
+  }, [establishments]);
 
   // Mostrar los modales de selección de tiempo
   const showStartTimePicker = () => setStartTimePickerVisible(true);
@@ -251,16 +268,16 @@ export const DashboardScreen = () => {
         showsUserLocation={true}
         followsUserLocation={true}
         onPress={onMapPress}>
-        {/* Agregar un marcador por cada ubicación del arreglo */}
-        {locations.map(location => (
+        {/* Iterar sobre los establecimientos traídos desde el backend */}
+        {establishments.map(establishment => (
           <Marker
-            key={location.user_id}
+            key={establishment.id} // Usa el id de cada establecimiento como clave
             coordinate={{
-              latitude: location.latitude,
-              longitude: location.longitude,
+              latitude: parseFloat(establishment.latitude), // Asegúrate de que sean números
+              longitude: parseFloat(establishment.longitude),
             }}
-            title={location.name}
-            description={location.description}
+            title={establishment.name} // Muestra el nombre del establecimiento
+            description={establishment.description} // Muestra la descripción del establecimiento
           />
         ))}
 
