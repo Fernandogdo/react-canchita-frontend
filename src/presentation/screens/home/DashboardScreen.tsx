@@ -6,6 +6,8 @@ import {
   View,
   Modal,
   TouchableOpacity,
+  ScrollView,
+  Image
 } from 'react-native';
 import {Layout, Text, Button, Input} from '@ui-kitten/components';
 import {useNavigation, NavigationProp} from '@react-navigation/native';
@@ -17,57 +19,7 @@ import {MyIcon} from '../../components/ui/MyIcon';
 import {Calendar, DateData} from 'react-native-calendars'; // Importamos el calendario
 import DateTimePickerModal from 'react-native-modal-datetime-picker'; // Importamos el DateTimePicker
 import {useEstablishmentStore} from '../../store/establishment/useEstablishmentStore';
-
-// Arreglo de ubicaciones con las coordenadas
-// const locations = [
-//   {
-//     user_id: 2,
-//     name: 'Los peluches2',
-//     description:
-//       'Cancha de uso múltiple con techo, tiene de basket y fútbol sintética y también disponible de pádel',
-//     latitude: -2.900456,
-//     longitude: -79.004563,
-//   },
-//   {
-//     user_id: 3,
-//     name: 'Complejo Deportivo Cuenca',
-//     description:
-//       'Cancha sintética para fútbol, basket, y otros deportes al aire libre',
-//     latitude: -2.902341,
-//     longitude: -79.005312,
-//   },
-//   {
-//     user_id: 4,
-//     name: 'Deportes Cuenca',
-//     description:
-//       'Espacio deportivo con acceso a cancha de fútbol sintética y área de entrenamiento',
-//     latitude: -2.901245,
-//     longitude: -79.006891,
-//   },
-//   {
-//     user_id: 5,
-//     name: 'Centro Deportivo Miraflores',
-//     description: 'Centro deportivo con cancha sintética y gimnasio',
-//     latitude: -2.899854,
-//     longitude: -79.008134,
-//   },
-//   {
-//     user_id: 6,
-//     name: 'Club Deportivo El Ejido',
-//     description:
-//       'Cancha de fútbol sintética con iluminación nocturna y servicios adicionales',
-//     latitude: -2.902567,
-//     longitude: -79.003689,
-//   },
-//   {
-//     user_id: 7,
-//     name: 'Parque La Madre',
-//     description:
-//       'Área recreativa con cancha sintética de fútbol y zona de juegos',
-//     latitude: -2.899731,
-//     longitude: -79.007456,
-//   },
-// ];
+import StarRating from '../../components/establishments/StarRating';
 
 export const DashboardScreen = () => {
   const {fetchEstablishments, establishments} = useEstablishmentStore();
@@ -76,8 +28,9 @@ export const DashboardScreen = () => {
     longitude: number;
   } | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [plazasModalVisible, setPlazasModalVisible] = useState(false); // Modal para plazas
   const [filterType, setFilterType] = useState<string | null>(null);
-
+  const [rating, setRating] = useState(3);
   // Estado para los filtros acumulados
   const [filters, setFilters] = useState({
     minPrice: 10,
@@ -104,6 +57,37 @@ export const DashboardScreen = () => {
     {name: 'Tenis', icon: 'activity-outline'},
     {name: 'Natación', icon: 'droplet-outline'},
     {name: 'Ciclismo', icon: 'car-outline'},
+  ];
+
+  // Arreglo de plazas ficticias
+  const samplePlazas = [
+    {
+      establishment_id: 1,
+      sport_category_id: 2,
+      description: 'Cancha de Basket',
+      capacity: '11',
+      isCovered: true,
+      isMultipurpose: false,
+      isAvailable: true,
+    },
+    {
+      establishment_id: 1,
+      sport_category_id: 1,
+      description: 'Cancha de Fútbol',
+      capacity: '22',
+      isCovered: false,
+      isMultipurpose: true,
+      isAvailable: false,
+    },
+    {
+      establishment_id: 1,
+      sport_category_id: 3,
+      description: 'Cancha de Tenis',
+      capacity: '2',
+      isCovered: false,
+      isMultipurpose: false,
+      isAvailable: true,
+    },
   ];
 
   //Obtiene todos los establecimientos
@@ -159,6 +143,11 @@ export const DashboardScreen = () => {
     }
     setMarkedDates(newMarkedDates);
     setFilters(prev => ({...prev, selectedDates: newMarkedDates}));
+  };
+
+  // Selecciona marcador y abre modal de plazas
+  const onMarkerPress = () => {
+    setPlazasModalVisible(true); // Abre el modal de plazas al seleccionar un marcador
   };
 
   const onMapPress = (event: any) => {
@@ -278,6 +267,7 @@ export const DashboardScreen = () => {
             }}
             title={establishment.name} // Muestra el nombre del establecimiento
             description={establishment.description} // Muestra la descripción del establecimiento
+            onPress={onMarkerPress} // Abre el modal de plazas al seleccionar el marcador
           />
         ))}
 
@@ -291,7 +281,63 @@ export const DashboardScreen = () => {
         )}
       </MapView>
 
-      {/* Modales */}
+      {/* Modal para las plazas */}
+      <Modal
+        visible={plazasModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setPlazasModalVisible(false)}>
+        <View style={styles.plazasModalContainer}>
+          <View style={styles.plazasModalContent}>
+            <ScrollView>
+              {samplePlazas.map((plaza, index) => (
+                <View key={index} style={styles.plazaCard}>
+                  <View style={styles.plazaDetailsContainer}>
+                    {/* Estrellas */}
+                    <StarRating rating={rating} />
+                    {/* <View style={styles.starsContainer}>
+                      {[...Array(5)].map((_, i) => (
+                        <MyIcon
+                          key={i}
+                          name="star"
+                          size={16}
+                          color="#FFD700"
+                          style={styles.starIcon}
+                        />
+                      ))}
+                    </View> */}
+                    <Image
+                      source={require('../../../assets/canchita-logo.png')} // Imagen de ejemplo
+                      style={styles.circularImage}
+                    />
+                    <Text style={styles.plazaTitle}>
+                      {plaza.description} - Capacidad: {plaza.capacity}
+                    </Text>
+                    <Text style={styles.plazaDetail}>
+                      {plaza.isCovered ? 'Cubierta' : 'No cubierta'} |{' '}
+                      {plaza.isMultipurpose
+                        ? 'Multipropósito'
+                        : 'No Multipropósito'}{' '}
+                      | {plaza.isAvailable ? 'Disponible' : 'No Disponible'}
+                    </Text>
+                   
+                  </View>
+                </View>
+              ))}
+            </ScrollView>
+            <Button style={styles.viewButton}>
+                      Ver Establecimiento
+            </Button>
+            <Button
+              onPress={() => setPlazasModalVisible(false)}
+              style={styles.modalButton}>
+              Cerrar
+            </Button>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modales (Filtros) */}
       <Modal
         visible={modalVisible}
         transparent={true}
@@ -559,6 +605,68 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     color: 'white',
     borderRadius: 20,
+    marginTop: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    alignSelf: 'center',
+  },
+  plazasModalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)', // Fondo oscuro más sutil
+  },
+  plazasModalContent: {
+    width: '90%',
+    padding: 15, // Ajusta el padding para que sea más pequeño
+    backgroundColor: 'white',
+    borderRadius: 12, // Bordes más redondeados para mejor apariencia
+    maxHeight: '70%', // Controla la altura para que no ocupe toda la pantalla
+  },
+  plazaCard: {
+    backgroundColor: '#F8F8F8', // Fondo de las tarjetas de plazas
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+    borderColor: '#e0e0e0',
+    borderWidth: 1,
+    flexDirection: 'row', // Alinea los elementos horizontalmente
+    justifyContent: 'space-between', // Añadido para la estructura
+  },
+  plazaDetailsContainer: {
+    flex: 1,
+    marginLeft: 10,
+  },
+  plazaTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333', // Un color más oscuro para mejor contraste
+    marginBottom: 5, // Espaciado entre el título y los detalles
+  },
+  plazaDetail: {
+    fontSize: 14,
+    color: '#666', // Un gris medio para los detalles
+  },
+  circularImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25, // Círculo perfecto
+    marginRight: 10, // Espacio entre la imagen y el texto
+  },
+  starsContainer: {
+    flexDirection: 'row',
+    marginBottom: 10, // Espacio entre las estrellas y el contenido
+  },
+  starIcon: {
+    marginHorizontal: 2, // Espaciado entre las estrellas
+  },
+  viewButton: {
+    backgroundColor: '#000',
+    borderColor: '#000',
+    borderRadius: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    alignSelf: 'flex-end',
     marginTop: 10,
   },
   buttonContainer: {
