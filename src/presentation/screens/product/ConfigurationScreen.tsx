@@ -67,31 +67,32 @@ export const ConfigurationScreen = () => {
               </View>
               <View style={styles.userContainerText}>
                 <Text style={styles.userName}>{userName || 'Usuario'}</Text>
-                <Text style={styles.secondaryText}>{"Cliente / Dueño"}</Text>
-              </View>
-            </View>
+                <Text style={styles.secondaryText}>{"Cliente / Dueño"}</Text>             
+              </View>       
+            </View> 
+            <Divider style={{ height:1, backgroundColor: 'gray', width: "90%", marginLeft:15,marginBottom:10}} />    
             <Text style={styles.normalTextBold}>Configuraciones</Text>
             {/* Menú con cuatro botones */}
-            <Layout style={styles.containButton} >
+            <Layout style={{ flexDirection:"row",marginLeft:25}} >
             <MyIcon name="arrow-forward-outline" />
             <Text   onPress={() => navigation.navigate('EstablishmentDetailScreen',{establishmentId:"1"})}style={styles.menuText}>Configuraciones</Text>
-            <MyIcon name="arrow-forward-outline" />
+           
             </Layout>
            
             <Layout style={styles.containButton} >
             <MyIcon name="arrow-forward-outline" />
             <Text  onPress={onLogout} style={styles.menuText}>Configuraciones</Text>
-            <MyIcon name="arrow-forward-outline" />
+           
             </Layout>
             <Layout style={styles.containButton} >
             <MyIcon name="settings-2-outline" />
             <Text  onPress={onLogout} style={styles.menuText}>Configuraciones</Text>
-            <MyIcon name="arrow-forward-outline" />
+           
             </Layout>
             <Layout style={styles.containButton} >
             <MyIcon name="menu-outline" />
             <Text  onPress={onLogout} style={styles.menuText}>Configuraciones</Text>
-            <MyIcon name="arrow-forward-outline" />
+            {/* <MyIcon name="arrow-forward-outline" /> */}
             </Layout>
            
           </View>
@@ -134,7 +135,7 @@ const styles = StyleSheet.create({
     marginLeft: 25,
   },
   userName: {
-    fontSize: 20,
+    fontSize: 25,
     color: '#333',
   },
   logoutButton: {
@@ -145,7 +146,7 @@ const styles = StyleSheet.create({
     // Color de fondo del botón de cerrar sesión
   },
   title: {
-    fontSize: 30, // Tamaño de fuente similar a un h1
+    fontSize: 35, // Tamaño de fuente similar a un h1
     fontWeight: 'bold', // Para hacerlo más prominente
     marginBottom: 20, // Espaciado debajo del título
     textAlign: 'left', // Centrar el texto
@@ -153,7 +154,7 @@ const styles = StyleSheet.create({
     marginLeft: 25,
   },
   normalTextBold: {
-    fontSize: 15, // Tamaño de fuente similar a un h1
+    fontSize: 25, // Tamaño de fuente similar a un h1
     fontWeight: 'bold', // Para hacerlo más prominente
     marginBottom: 20, // Espaciado debajo del título
     textAlign: 'left', // Centrar el texto
@@ -161,7 +162,7 @@ const styles = StyleSheet.create({
     marginLeft: 25,
   },
   secondaryText: {
-    fontSize: 10,
+    fontSize: 20,
     color: 'gray',
   },
 
@@ -171,15 +172,13 @@ const styles = StyleSheet.create({
   containButton:{
     flexDirection: "row",
     marginLeft:25,
-    marginTop:5,
-    flex: 1
-    
+    marginTop:25,
   },
   menuText:{
     marginRight:25,
     marginLeft:25,
-    fontSize:20,
-   
+    fontSize:25,
+
   }
 });
 
