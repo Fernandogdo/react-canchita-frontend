@@ -7,7 +7,7 @@ import {
   Modal,
   TouchableOpacity,
   ScrollView,
-  Image
+  Image,
 } from 'react-native';
 import {Layout, Text, Button, Input} from '@ui-kitten/components';
 import {useNavigation, NavigationProp} from '@react-navigation/native';
@@ -110,23 +110,28 @@ export const DashboardScreen = () => {
   const hideStartTimePicker = () => setStartTimePickerVisible(false);
 
   const handleStartTimeConfirm = (time: Date) => {
+    const roundedStartTime = new Date(time);
+    roundedStartTime.setMinutes(0); // Redondea los minutos a 0
     setFilters(prev => ({
       ...prev,
-      startTime: time.toLocaleTimeString('en-US', {
+      startTime: roundedStartTime.toLocaleTimeString('en-US', {
         hour: '2-digit',
         minute: '2-digit',
       }),
     }));
     hideStartTimePicker();
   };
+  
 
   const showEndTimePicker = () => setEndTimePickerVisible(true);
   const hideEndTimePicker = () => setEndTimePickerVisible(false);
 
   const handleEndTimeConfirm = (time: Date) => {
+    const roundedEndTime = new Date(time);
+    roundedEndTime.setMinutes(0); // Redondea los minutos a 0
     setFilters(prev => ({
       ...prev,
-      endTime: time.toLocaleTimeString('en-US', {
+      endTime: roundedEndTime.toLocaleTimeString('en-US', {
         hour: '2-digit',
         minute: '2-digit',
       }),
@@ -135,15 +140,13 @@ export const DashboardScreen = () => {
   };
 
   const handleDayPress = (day: DateData) => {
-    const newMarkedDates = {...markedDates};
-    if (newMarkedDates[day.dateString]) {
-      delete newMarkedDates[day.dateString];
-    } else {
-      newMarkedDates[day.dateString] = {selected: true, marked: true};
-    }
+    const newMarkedDates: Record<string, { selected: boolean; marked: boolean }> = {
+      [day.dateString]: { selected: true, marked: true },
+    };
     setMarkedDates(newMarkedDates);
-    setFilters(prev => ({...prev, selectedDates: newMarkedDates}));
+    setFilters(prev => ({ ...prev, selectedDates: newMarkedDates }));
   };
+  
 
   // Selecciona marcador y abre modal de plazas
   const onMarkerPress = () => {
@@ -219,21 +222,48 @@ export const DashboardScreen = () => {
 
         {/* Tabs para filtros */}
         <Layout style={styles.tabContainer}>
-          <TouchableOpacity
-            style={styles.customButton}
-            onPress={() => openFilterModal('Precio')}>
-            <Text style={styles.customButtonText}>Precio $</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.customButton}
-            onPress={() => openFilterModal('Deporte')}>
-            <Text style={styles.customButtonText}>Deporte</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.customButton}
-            onPress={() => openFilterModal('Disponibilidad')}>
-            <Text style={styles.customButtonText}>Disponibilidad</Text>
-          </TouchableOpacity>
+          {/* Tab de Precio */}
+          <View style={styles.tabItem}>
+            <TouchableOpacity
+              style={styles.customButton}
+              onPress={() => openFilterModal('Precio')}>
+              <Text style={styles.customButtonText}>Precio $</Text>
+            </TouchableOpacity>
+            {/* Mostrar el rango de precios seleccionado */}
+            {filters.minPrice && filters.maxPrice && (
+              <Text style={styles.selectedFilterText}>
+                ${filters.minPrice} - ${filters.maxPrice}
+              </Text>
+            )}
+          </View>
+
+          {/* Tab de Deporte */}
+          <View style={styles.tabItem}>
+            <TouchableOpacity
+              style={styles.customButton}
+              onPress={() => openFilterModal('Deporte')}>
+              <Text style={styles.customButtonText}>Deporte</Text>
+            </TouchableOpacity>
+            {/* Mostrar el deporte seleccionado */}
+            {filters.selectedSport && (
+              <Text style={styles.selectedFilterText}>{filters.selectedSport}</Text>
+            )}
+          </View>
+
+          {/* Tab de Disponibilidad */}
+          <View style={styles.tabItem}>
+            <TouchableOpacity
+              style={styles.customButton}
+              onPress={() => openFilterModal('Disponibilidad')}>
+              <Text style={styles.customButtonText}>Disponibilidad</Text>
+            </TouchableOpacity>
+            {/* Mostrar la fecha seleccionada */}
+            {Object.keys(filters.selectedDates).length > 0 && (
+              <Text style={styles.selectedFilterText}>
+                {Object.keys(filters.selectedDates)[0]} {/* Mostrar la fecha seleccionada */}
+              </Text>
+            )}
+          </View>
         </Layout>
 
         {/* Botón para aplicar todos los filtros */}
@@ -295,17 +325,6 @@ export const DashboardScreen = () => {
                   <View style={styles.plazaDetailsContainer}>
                     {/* Estrellas */}
                     <StarRating rating={rating} />
-                    {/* <View style={styles.starsContainer}>
-                      {[...Array(5)].map((_, i) => (
-                        <MyIcon
-                          key={i}
-                          name="star"
-                          size={16}
-                          color="#FFD700"
-                          style={styles.starIcon}
-                        />
-                      ))}
-                    </View> */}
                     <Image
                       source={require('../../../assets/canchita-logo.png')} // Imagen de ejemplo
                       style={styles.circularImage}
@@ -320,14 +339,11 @@ export const DashboardScreen = () => {
                         : 'No Multipropósito'}{' '}
                       | {plaza.isAvailable ? 'Disponible' : 'No Disponible'}
                     </Text>
-                   
                   </View>
                 </View>
               ))}
             </ScrollView>
-            <Button style={styles.viewButton}>
-                      Ver Establecimiento
-            </Button>
+            <Button style={styles.viewButton}>Ver Establecimiento</Button>
             <Button
               onPress={() => setPlazasModalVisible(false)}
               style={styles.modalButton}>
@@ -409,7 +425,17 @@ export const DashboardScreen = () => {
                 <Calendar
                   onDayPress={handleDayPress}
                   markedDates={markedDates}
-                  markingType={'multi-dot'}
+                  markingType={'custom'}
+                  theme={{
+                    selectedDayBackgroundColor: '#1AC71A', // Cambia el color de fondo del día seleccionado a verde
+                    selectedDayTextColor: '#ffffff', // Color del texto del día seleccionado
+                    todayTextColor: '#1AC71A', // Cambia el color del texto para el día actual
+                    dayTextColor: '#2d4150', // Color del texto de los días normales
+                    textDayFontWeight: '600',
+                    textMonthFontWeight: 'bold',
+                    textDayHeaderFontWeight: '600',
+                    arrowColor: '#1AC71A', // Cambia el color de las flechas del calendario
+                  }}
                 />
 
                 <View style={styles.timePickerContainer}>
@@ -514,9 +540,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 12,
   },
-  filterButton: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#FFFFFF',
+  tabItem: {
+    alignItems: 'center', // Asegura que el texto del filtro seleccionado esté alineado
   },
   customButton: {
     backgroundColor: '#FFFFFF',
@@ -525,10 +550,15 @@ const styles = StyleSheet.create({
     borderColor: '#FFFFFF',
     borderWidth: 1,
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 5, // Aumenta el espacio entre el botón y el filtro seleccionado
   },
   customButtonText: {
-    color: '#1AC71A', // El verde que quieres
+    color: '#000000', // Cambia el color a negro
+    fontWeight: 'bold',
+  },  
+  selectedFilterText: {
+    color: '#1AC71A', // Color del texto para los filtros seleccionados
+    fontSize: 12,
     fontWeight: 'bold',
   },
   applyAllButton: {
